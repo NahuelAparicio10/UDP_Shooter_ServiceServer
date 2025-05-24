@@ -38,18 +38,22 @@ void VersionChecker::Run(std::atomic<bool>& running)
 }
 void VersionChecker::HandleClient(const std::string& message, const sf::IpAddress& sender, unsigned short senderPort)
 {
-	std::cout << "[VersionChecker] Received from " << sender << ":" << senderPort << " -> " << message << std::endl;
+	std::cout << "[VERSION_CHECKER] Received from " << sender << ":" << senderPort << " -> " << message << std::endl;
 	
 	if (message.rfind("VERSION:", 0) == 0) 
 	{
 		std::string version = message.substr(8);
-		if (version == _lastestVersion) {
+
+		if (version == _lastestVersion) 
+		{
 			std::string ok = "OK";
 			_socket.send(ok.c_str(), ok.size(), sender, senderPort);
 		}
-		else {
-			std::string update = "UPDATE";
+		else 
+		{
+			std::string update = "UPDATE:" + _lastestVersion;
 			_socket.send(update.c_str(), update.size(), sender, senderPort);
+
 			SendFile(sender, senderPort);
 		}
 	}
@@ -59,20 +63,23 @@ void VersionChecker::SendFile(sf::IpAddress address, unsigned short port)
 {
 	std::ifstream file(_mapFilePath);
 
-	if (!file.is_open()) {
-		std::cerr << "[VersionChecker] Could not open map file: " << _mapFilePath << std::endl;
+	if (!file.is_open()) 
+	{
+		std::cerr << "[VERSION_CHECKER] Could not open map file: " << _mapFilePath << std::endl;
 		return;
 	}
 
 	std::string line;
-	while (std::getline(file, line)) {
+	while (std::getline(file, line)) 
+	{
 		_socket.send(line.c_str(), line.size(), address, port);
+
 		sf::sleep(sf::milliseconds(10)); // Evita saturar la red
 	}
 
 	std::string end = "EOF";
 	_socket.send(end.c_str(), end.size(), address, port);
 
-	std::cout << "[VersionChecker] Map sent to " << address << ":" << port << std::endl;
+	std::cout << "[VERSION_CHECKER] Map sent to " << address << ":" << port << std::endl;
 }
 

@@ -17,7 +17,7 @@ public:
 
 private:
 	int _port = 9000;
-	const std::string _lastestVersion = "0.0";
+	const std::string _lastestVersion = "0.1";
 	const std::string _mapFilePath = "Maps/map_v0_0.txt";
 	sf::UdpSocket _socket;
 
