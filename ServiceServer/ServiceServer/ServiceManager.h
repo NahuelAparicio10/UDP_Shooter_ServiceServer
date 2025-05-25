@@ -1,7 +1,6 @@
 #pragma once
 #include <thread>
 #include <atomic>
-#include "DatabaseManager.h"
 #include "VersionChecker.h"
 #include "MatchmakingServer.h"
 #include "LoginServer.h"
@@ -28,6 +27,5 @@ private:
 	LoginServer* _loginServer;
 	MatchmakingServer* _matchMakingServer;
 
-	DatabaseManager* _dataBase;
 };
 

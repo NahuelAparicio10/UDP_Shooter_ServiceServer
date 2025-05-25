@@ -19,6 +19,12 @@
     <Filter Include="Header Files\Utils">
       <UniqueIdentifier>{d487113f-aae6-4f79-87e1-6a6debf00fe7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\LoginRegister">
+      <UniqueIdentifier>{a33fbb16-30e3-48d2-94f2-ff5198858ac1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\LoginRegister">
+      <UniqueIdentifier>{236d7d49-4162-4502-9b17-801770853ff2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -30,16 +36,7 @@
     <ClCompile Include="VersionChecker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LoginServer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MatchmakingServer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="NetworkUtils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DatabaseManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="bcrypt.cpp">
@@ -47,6 +44,15 @@
     </ClCompile>
     <ClCompile Include="blowfish.cpp">
       <Filter>Source Files\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientLR.cpp">
+      <Filter>Source Files\LoginRegister</Filter>
+    </ClCompile>
+    <ClCompile Include="LoginServer.cpp">
+      <Filter>Source Files\LoginRegister</Filter>
+    </ClCompile>
+    <ClCompile Include="DatabaseManager.cpp">
+      <Filter>Source Files\LoginRegister</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -56,16 +62,7 @@
     <ClInclude Include="VersionChecker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LoginServer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MatchmakingServer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NetworkUtils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DatabaseManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="bcrypt.h">
@@ -76,6 +73,15 @@
     </ClInclude>
     <ClInclude Include="openbsd.h">
       <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ClientLR.h">
+      <Filter>Header Files\LoginRegister</Filter>
+    </ClInclude>
+    <ClInclude Include="LoginServer.h">
+      <Filter>Header Files\LoginRegister</Filter>
+    </ClInclude>
+    <ClInclude Include="DatabaseManager.h">
+      <Filter>Header Files\LoginRegister</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
