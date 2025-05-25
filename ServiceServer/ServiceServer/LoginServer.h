@@ -11,6 +11,7 @@ public:
 	LoginServer();
 	~LoginServer();
 
+	void StartListening(unsigned short port);
 	void AcceptNewConnection();
 	void ReceiveData(ClientLR* client);
 	void HandleCommand(ClientLR* client, const std::string& command, const std::string& nick, const std::string& pass);

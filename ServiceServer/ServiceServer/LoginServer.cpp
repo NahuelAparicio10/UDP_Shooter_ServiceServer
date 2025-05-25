@@ -4,11 +4,24 @@ LoginServer::LoginServer()
 {
     _database = new DatabaseManager();
     _database->ConnectDatabase();
+    StartListening(50000);
 }
 
 LoginServer::~LoginServer()
 {
     delete _database;
+}
+
+void LoginServer::StartListening(unsigned short port)
+{
+    // Opens port to listen to connection
+
+    if (_listener.listen(port) != sf::Socket::Status::Done)
+    {
+        std::cerr << "[LR_SERVER] Failed to bind port" << std::endl;
+    }
+
+    _selector.add(_listener);
 }
 
 // -- Accepts new clients and adds them to the selector
@@ -22,7 +35,7 @@ void LoginServer::AcceptNewConnection()
         socket->setBlocking(false);
         _selector.add(*socket);
         _clients.emplace_back(std::make_unique<ClientLR>(socket));
-        std::cout << "[Server] New client connected." << std::endl;
+        std::cout << "[LR_SERVER] New client connected." << std::endl;
     }
     else 
     {
