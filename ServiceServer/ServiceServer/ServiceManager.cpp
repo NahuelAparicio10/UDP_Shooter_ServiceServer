@@ -2,7 +2,6 @@
 
 ServiceManager::ServiceManager()
 {
-	_dataBase = new DatabaseManager();
 	_versionChecker = new VersionChecker();
 	_loginServer = new LoginServer();
 	_matchMakingServer = new MatchmakingServer();
@@ -12,7 +11,6 @@ ServiceManager::ServiceManager()
 ServiceManager::~ServiceManager()
 {
 	StopServices();
-	delete _dataBase;
 	delete _versionChecker;
 	delete _loginServer;
 	delete _matchMakingServer;
@@ -20,7 +18,6 @@ ServiceManager::~ServiceManager()
 
 void ServiceManager::InitializeServices()
 {
-	_dataBase->ConnectDatabase();
 	_versionThread = std::thread(&VersionChecker::Run, _versionChecker, std::ref(_running));
 	_loginRegisterThread = std::thread(&LoginServer::Run, _loginServer, std::ref(_running));
 	//_matchMakingServer = std::thread(&MatchmakingServer::Run, _matchMakingServer, std::ref(_running));

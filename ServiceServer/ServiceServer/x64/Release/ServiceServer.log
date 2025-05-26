@@ -1,4 +1,10 @@
-﻿  Main.cpp
+﻿  LoginServer.cpp
+C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\Dependencies\include\SFML\System\Exception.hpp(42,1): warning C4275: non dll-interface class 'std::runtime_error' used as base for dll-interface class 'sf::Exception'
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\stdexcept(101): message : see declaration of 'std::runtime_error'
+C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\Dependencies\include\SFML\System\Exception.hpp(41): message : see declaration of 'sf::Exception'
+C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\ServiceServer\LoginServer.cpp(88,34): warning C4834: discarding return value of function with 'nodiscard' attribute
+C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\ServiceServer\LoginServer.cpp(95,34): warning C4834: discarding return value of function with 'nodiscard' attribute
+  Main.cpp
 C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\Dependencies\include\SFML\System\Exception.hpp(42,1): warning C4275: non dll-interface class 'std::runtime_error' used as base for dll-interface class 'sf::Exception'
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\stdexcept(101): message : see declaration of 'std::runtime_error'
 C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\Dependencies\include\SFML\System\Exception.hpp(41): message : see declaration of 'sf::Exception'
@@ -6,19 +12,11 @@ C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\S
 C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\Dependencies\include\SFML\System\Exception.hpp(42,1): warning C4275: non dll-interface class 'std::runtime_error' used as base for dll-interface class 'sf::Exception'
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\stdexcept(101): message : see declaration of 'std::runtime_error'
 C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\Dependencies\include\SFML\System\Exception.hpp(41): message : see declaration of 'sf::Exception'
-  VersionChecker.cpp
-C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\Dependencies\include\SFML\System\Exception.hpp(42,1): warning C4275: non dll-interface class 'std::runtime_error' used as base for dll-interface class 'sf::Exception'
-C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\stdexcept(101): message : see declaration of 'std::runtime_error'
-C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\Dependencies\include\SFML\System\Exception.hpp(41): message : see declaration of 'sf::Exception'
-C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\ServiceServer\VersionChecker.cpp(50,16): warning C4834: discarding return value of function with 'nodiscard' attribute
-C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\ServiceServer\VersionChecker.cpp(55,16): warning C4834: discarding return value of function with 'nodiscard' attribute
-C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\ServiceServer\VersionChecker.cpp(75,15): warning C4834: discarding return value of function with 'nodiscard' attribute
-C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\ServiceServer\VersionChecker.cpp(81,14): warning C4834: discarding return value of function with 'nodiscard' attribute
      Creating library C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\x64\Release\ServiceServer.lib and object C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\x64\Release\ServiceServer.exp
   Generating code
-  4 of 352 functions ( 1.1%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    1 functions had inline decision re-evaluated but remain unchanged
+  6 of 520 functions ( 1.2%) were compiled, the rest were copied from previous compilation.
+    1 functions were new in current compilation
+    9 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
 mysqlcppconn-static.lib(mysql_driver.obj) : warning LNK4099: PDB 'jdbc.pdb' was not found with 'mysqlcppconn-static.lib(mysql_driver.obj)' or at 'C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\x64\Release\jdbc.pdb'; linking object as if no debug info
 mysqlcppconn-static.lib(mysql_connection.obj) : warning LNK4099: PDB 'jdbc.pdb' was not found with 'mysqlcppconn-static.lib(mysql_connection.obj)' or at 'C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\x64\Release\jdbc.pdb'; linking object as if no debug info
