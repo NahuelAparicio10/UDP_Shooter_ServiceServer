@@ -21,7 +21,6 @@ public:
 private:
 	sf::TcpListener _listener;
 	sf::SocketSelector _selector;
-	DatabaseManager* _database;
 	std::vector<std::unique_ptr<ClientLR>> _clients;
 };
 

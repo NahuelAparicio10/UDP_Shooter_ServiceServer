@@ -4,6 +4,7 @@
 #include "VersionChecker.h"
 #include "MatchmakingServer.h"
 #include "LoginServer.h"
+#include "DatabaseManager.h"
 
 // -- Initialize everything and launches the threads
 

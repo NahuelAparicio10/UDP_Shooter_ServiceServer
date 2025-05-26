@@ -4,6 +4,14 @@
 #define USERNAME "root"
 #define PASSWORD "12345"
 
+// -- Connects to the MySQL database and sets the active schema or returns an error if not
+
+DatabaseManager& DatabaseManager::GetInstance()
+{
+	static DatabaseManager instance;
+	return instance;
+}
+
 DatabaseManager::DatabaseManager()
 {
 	_driver = nullptr;
@@ -17,8 +25,6 @@ DatabaseManager::~DatabaseManager()
 		delete _con;
 	}
 }
-
-// -- Connects to the MySQL database and sets the active schema or returns an error if not
 
 void DatabaseManager::ConnectDatabase()
 {
@@ -42,6 +48,7 @@ void DatabaseManager::ConnectDatabase()
 
 bool DatabaseManager::RegisterUser(const std::string& nickname, const std::string& password)
 {
+	std::lock_guard<std::mutex> lock(_loginMutex);
 	//We check for empty fields
 	if (nickname.empty() || password.empty()) {
 		std::cerr << "[DATABASE] Nickname or password empty on field \n";
@@ -70,6 +77,8 @@ bool DatabaseManager::RegisterUser(const std::string& nickname, const std::strin
 
 bool DatabaseManager::LoginUser(const std::string& nickname, const std::string& password)
 {
+	std::lock_guard<std::mutex> lock(_loginMutex);
+
 	if (nickname.empty() || password.empty()) {
 		std::cerr << "[DATABASE] Nickname or password empty on field \n";
 		return false;
@@ -95,4 +104,16 @@ bool DatabaseManager::LoginUser(const std::string& nickname, const std::string& 
 		std::cerr << "[DATABASE] Login error" << e.what() << std::endl;
 		return false;
 	}
+}
+
+int DatabaseManager::GetElo(const std::string& user)
+{
+	std::lock_guard<std::mutex> lock(_eloMutex);
+	return 0;
+}
+
+bool DatabaseManager::UpdateElo(const std::string& user, int newElo)
+{
+	std::lock_guard<std::mutex> lock(_eloMutex);
+	return false;
 }
