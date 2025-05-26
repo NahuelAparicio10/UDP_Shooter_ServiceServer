@@ -31,6 +31,12 @@
     <Filter Include="Source Files\Singletons">
       <UniqueIdentifier>{3754116b-5112-4a40-bbc7-251696083e2a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\MatchMaking">
+      <UniqueIdentifier>{69206987-5466-4e61-ad46-b2c34416d230}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\MatchMaking">
+      <UniqueIdentifier>{f98abf85-aadc-47ae-8ea4-5670013e4e6d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -40,9 +46,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="VersionChecker.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MatchmakingServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="bcrypt.cpp">
@@ -60,15 +63,15 @@
     <ClCompile Include="DatabaseManager.cpp">
       <Filter>Source Files\Singletons</Filter>
     </ClCompile>
+    <ClCompile Include="MatchmakingServer.cpp">
+      <Filter>Source Files\MatchMaking</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ServiceManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VersionChecker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MatchmakingServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="bcrypt.h">
@@ -88,6 +91,9 @@
     </ClInclude>
     <ClInclude Include="DatabaseManager.h">
       <Filter>Header Files\Singletons</Filter>
+    </ClInclude>
+    <ClInclude Include="MatchmakingServer.h">
+      <Filter>Header Files\MatchMaking</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
