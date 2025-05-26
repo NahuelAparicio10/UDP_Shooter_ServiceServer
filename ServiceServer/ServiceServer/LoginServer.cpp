@@ -2,14 +2,11 @@
 
 LoginServer::LoginServer()
 {
-    _database = new DatabaseManager();
-    _database->ConnectDatabase();
     StartListening(50000);
 }
 
 LoginServer::~LoginServer()
 {
-    delete _database;
 }
 
 void LoginServer::StartListening(unsigned short port)
@@ -82,14 +79,14 @@ void LoginServer::HandleCommand(ClientLR* client, const std::string& command, co
 
     if (command == "REGISTER")
     {
-        bool success = _database->RegisterUser(nick, pass);
+        bool success = DatabaseManager::GetInstance().RegisterUser(nick, pass);
         response << (success ? "REGISTER_OK" : "REGISTER_FAIL");
 
         client->GetSocket()->send(response);
     }
     else if (command == "LOGIN")
     {
-        bool success = _database->LoginUser(nick, pass);
+        bool success = DatabaseManager::GetInstance().LoginUser(nick, pass);
         response << (success ? "LOGIN_OK" : "LOGIN_FAIL");
 
         client->GetSocket()->send(response);

@@ -2,6 +2,8 @@
 
 ServiceManager::ServiceManager()
 {
+	DatabaseManager::GetInstance().ConnectDatabase();
+
 	_versionChecker = new VersionChecker();
 	_loginServer = new LoginServer();
 	_matchMakingServer = new MatchmakingServer();
