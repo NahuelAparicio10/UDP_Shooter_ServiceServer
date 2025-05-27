@@ -9,42 +9,54 @@
 constexpr int MAX_RETRIES = 5;
 constexpr float RESEND_INTERVAL = 1.0f;
 
-struct ClientMatchInfo 
-{
-	sf::IpAddress ip;
-	unsigned short port;
+enum class MatchType { NORMAL, RANKED };
+
+struct ClientMatchInfo {
+    sf::IpAddress ip;
+    unsigned short port;
 };
 
-struct PendingMatch
-{
-	ClientMatchInfo player;
-	std::string matchMessage;
-	int retries = 0;
-	sf::Clock timer;
+struct PendingMatch {
+    ClientMatchInfo player;
+    std::string matchMessage;
+    int retries = 0;
+    sf::Clock timer;
+    bool ackRecieved = false;
+    MatchType matchType;
 };
 
-class MatchmakingServer
-{
+struct MatchSession {
+    std::vector<PendingMatch> players;
+};
+
+struct MatchQueue {
+    MatchType type;
+    std::queue<ClientMatchInfo>* queue;
+};
+
+class MatchmakingServer {
 public:
-	MatchmakingServer();
-	~MatchmakingServer();
+    MatchmakingServer();
+    ~MatchmakingServer();
 
-	void Run(std::atomic<bool>& running);
+    void Run(std::atomic<bool>& running);
+    void SetPlayersPerMatch(unsigned int count);
 
 private:
-	bool InitializeSocket();
-	void HandleMessage(const std::string& message, const sf::IpAddress& sender, unsigned short port);
-	void ProcessMatchmaking();
-	void ProcessACKS();
+    bool InitializeSocket();
+    void HandleMessage(const std::string& message, const sf::IpAddress& sender, unsigned short port);
+    void ProcessMatchmaking(MatchQueue matchQueue);
+    void ProcessACKS();
+    void RemoveSessionAndReQueue(const MatchSession& session);
 
-	sf::UdpSocket _socket;
-	unsigned short _port = 9100;
+    sf::UdpSocket _socket;
+    unsigned short _port = 9100;
 
-	std::queue<ClientMatchInfo> _normalQueue;
-	std::queue<ClientMatchInfo> _rankedQueue;
-	sf::Clock _matchmakingTimer;
+    std::queue<ClientMatchInfo> _normalQueue;
+    std::queue<ClientMatchInfo> _rankedQueue;
+    sf::Clock _matchmakingTimer;
 
-	std::vector<PendingMatch> _pendingAcks;
+    std::vector<MatchSession> _pendingSessions;
 
+    unsigned int _playersPerMatch = 3;
 };
-

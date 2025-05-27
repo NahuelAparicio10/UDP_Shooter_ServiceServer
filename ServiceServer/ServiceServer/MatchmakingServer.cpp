@@ -4,10 +4,9 @@ MatchmakingServer::MatchmakingServer()
 {
 }
 
-MatchmakingServer::~MatchmakingServer()
-{
-	_socket.unbind();
-}
+MatchmakingServer::~MatchmakingServer() { _socket.unbind(); }
+
+void MatchmakingServer::SetPlayersPerMatch(unsigned int count) { _playersPerMatch = count; }
 
 void MatchmakingServer::Run(std::atomic<bool>& running)
 {
@@ -20,15 +19,16 @@ void MatchmakingServer::Run(std::atomic<bool>& running)
 
     while (running)
     {
-        // Revisa mensajes entrantes
         if (_socket.receive(buffer, sizeof(buffer), received, sender, senderPort) == sf::Socket::Status::Done) {
             std::string message(buffer, received);
             HandleMessage(message, sender.value(), senderPort);
         }
 
-        // Lógica de matchmaking cada 100 ms
-        if (_matchmakingTimer.getElapsedTime().asMilliseconds() > 100) {
-            ProcessMatchmaking();
+        if (_matchmakingTimer.getElapsedTime().asMilliseconds() > 100)
+        {
+            ProcessMatchmaking({ MatchType::NORMAL, &_normalQueue });
+            ProcessMatchmaking({ MatchType::RANKED, &_rankedQueue });
+            ProcessACKS();
             _matchmakingTimer.restart();
         }
     }
@@ -51,47 +51,73 @@ bool MatchmakingServer::InitializeSocket()
 
 void MatchmakingServer::HandleMessage(const std::string& message, const sf::IpAddress& sender, unsigned short port)
 {
-    if (message == "FIND_MATCH:NORMAL") 
+    if (message == "FIND_MATCH:NORMAL")
     {
-        std::cout << "[MATCHMAKING_SERVER] Player queued: " << sender.toString() << ":" << port << std::endl;
         _normalQueue.push({ sender, port });
+        std::cout << "[MATCHMAKING_SERVER] Player queued NORMAL: " << sender << ":" << port << std::endl;
     }
     else if (message == "FIND_MATCH:RANKED")
     {
-        std::cout << "[MATCHMAKING_SERVER] Player queued: " << sender.toString() << ":" << port << std::endl;
         _rankedQueue.push({ sender, port });
+        std::cout << "[MATCHMAKING_SERVER] Player queued RANKED: " << sender << ":" << port << std::endl;
+    }
+    else if (message == "CANCELED_SEARCHING")
+    {
+        auto removeFromQueue = [&](std::queue<ClientMatchInfo>& queue) {
+            std::queue<ClientMatchInfo> tempQueue;
+            while (!queue.empty()) {
+                ClientMatchInfo current = queue.front(); queue.pop();
+                if (!(current.ip == sender && current.port == port)) {
+                    tempQueue.push(current);
+                }
+                else {
+                    std::cout << "[MATCHMAKING_SERVER] Player canceled search: " << sender << ":" << port << "\n";
+                }
+            }
+            queue = std::move(tempQueue);
+        };
+
+        removeFromQueue(_normalQueue);
+        removeFromQueue(_rankedQueue);
+
+        std::string confirm = "CANCEL_CONFIRMED";
+        _socket.send(confirm.c_str(), confirm.size(), sender, port);
     }
     else if (message == "ACK_MATCH_FOUND")
     {
-        auto it = std::find_if(_pendingAcks.begin(), _pendingAcks.end(),
-            [&](const PendingMatch& p) {
-                return p.player.ip == sender && p.player.port == port;
-            });
-
-        if (it != _pendingAcks.end())
+        for (auto& session : _pendingSessions)
         {
-            std::cout << "[MATCHMAKING_SERVER] ACK received from " << sender.toString() << ":" << port << "\n";
-            _pendingAcks.erase(it);
+            for (auto& p : session.players)
+            {
+                if (p.player.ip == sender && p.player.port == port)
+                {
+                    p.ackRecieved = true;
+                    std::cout << "[MATCHMAKING_SERVER] ACK received from " << sender << ":" << port << std::endl;
+                }
+            }
         }
     }
 }
 
-void MatchmakingServer::ProcessMatchmaking()
+void MatchmakingServer::ProcessMatchmaking(MatchQueue matchQueue)
 {
-    while (_normalQueue.size() >= 2)
+    auto& queue = *matchQueue.queue;
+    std::cout << queue.size() << std::endl;
+    while (queue.size() >= _playersPerMatch)
     {
-        ClientMatchInfo player1 = _normalQueue.front(); _normalQueue.pop();
-        ClientMatchInfo player2 = _normalQueue.front(); _normalQueue.pop();
+        MatchSession session;
+        std::string matchMessage = std::string("MATCH_FOUND:127.0.0.1:60000:") + (matchQueue.type == MatchType::RANKED ? "RANKED" : "NORMAL");
+        for (unsigned int i = 0; i < _playersPerMatch; ++i)
+        {
+            ClientMatchInfo player = queue.front(); queue.pop();
+            session.players.push_back({ player, matchMessage, 0, sf::Clock(), false, matchQueue.type });
+            _socket.send(matchMessage.c_str(), matchMessage.size(), player.ip, player.port);
+        }
 
-        std::string matchInfo = "MATCH_FOUND:127.0.0.1:60000"; 
+        _pendingSessions.push_back(session);
 
-        _pendingAcks.push_back({ player1, matchInfo, 0, sf::Clock() });
-        _pendingAcks.push_back({ player2, matchInfo, 0, sf::Clock() });
-
-        std::cout << "[MATCHMAKING_SERVER] Match found. Waiting for ACKs from:\n";
-
-        std::cout << "  - " << player1.ip << ":" << player1.port << "\n";
-        std::cout << "  - " << player2.ip << ":" << player2.port << "\n";
+        std::cout << "[MATCHMAKING_SERVER] " << _playersPerMatch << " Player "
+            << (matchQueue.type == MatchType::RANKED ? "[RANKED]" : "[NORMAL]") << " Match created.\n";
     }
 }
 
@@ -99,21 +125,64 @@ void MatchmakingServer::ProcessMatchmaking()
 
 void MatchmakingServer::ProcessACKS()
 {
-    for (auto it = _pendingAcks.begin(); it != _pendingAcks.end(); )
+    for (auto it = _pendingSessions.begin(); it != _pendingSessions.end(); )
     {
-        if (it->timer.getElapsedTime().asSeconds() > RESEND_INTERVAL)
-        {
-            if (it->retries >= MAX_RETRIES)
-            {
-                std::cout << "[MATCHMAKING_SERVER] ACK not received after retries. Giving up on " << it->player.ip << ":" << it->player.port << std::endl;
-                it = _pendingAcks.erase(it);
-                continue;
-            }
-            _socket.send(it->matchMessage.c_str(), it->matchMessage.size(), it->player.ip, it->player.port);
+        bool allAcked = true;
+        bool giveUp = false;
 
-            it->timer.restart();
-            it->retries++;
+        for (auto& p : it->players)
+        {
+            if (!p.ackRecieved)
+            {
+                allAcked = false;
+
+                if (p.timer.getElapsedTime().asSeconds() > RESEND_INTERVAL)
+                {
+                    if (p.retries >= MAX_RETRIES)
+                    {
+                        std::cout << "[MATCHMAKING_SERVER] Giving up on player " << p.player.ip << ":" << p.player.port << std::endl;
+                        giveUp = true;
+                        break;
+                    }
+
+                    _socket.send(p.matchMessage.c_str(), p.matchMessage.size(), p.player.ip, p.player.port);
+                    p.timer.restart();
+                    p.retries++;
+                }
+            }
         }
-        ++it;
+
+        if (giveUp)
+        {
+            RemoveSessionAndReQueue(*it);
+            it = _pendingSessions.erase(it);
+        }
+        else if (allAcked)
+        {
+            std::cout << "[MATCHMAKING_SERVER] All ACKs received. Starting match...\n";
+            // Aquí puedes iniciar la lógica real de juego o notificar al game server
+            it = _pendingSessions.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+}
+
+// -- If any player in your match disconnects / does not reply ACK it earease that player an requeue the other ones
+
+void MatchmakingServer::RemoveSessionAndReQueue(const MatchSession& session)
+{
+    for (const auto& p : session.players)
+    {
+        if (p.ackRecieved)
+        {
+            std::cout << "[MATCHMAKING_SERVER] Returning " << p.player.ip << ":" << p.player.port << " to queue.\n";
+            if (p.matchType == MatchType::NORMAL)
+                _normalQueue.push(p.player);
+            else
+                _rankedQueue.push(p.player);
+        }
     }
 }
