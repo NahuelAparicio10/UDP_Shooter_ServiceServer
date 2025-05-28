@@ -95,5 +95,8 @@
     <ClInclude Include="MatchmakingServer.h">
       <Filter>Header Files\MatchMaking</Filter>
     </ClInclude>
+    <ClInclude Include="ConsoleUtils.h">
+      <Filter>Header Files\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -40,10 +40,10 @@ bool MatchmakingServer::InitializeSocket()
 {
 	if (_socket.bind(_port) != sf::Socket::Status::Done)
 	{
-		std::cerr << "[MATCHMAKING_SERVER] Failed to bind UDP port " << _port << std::endl;
+        WriteConsole("[MATCHMAKING_SERVER] Failed to bind UDP port ", _port);
 		return false;
 	}
-	std::cout << "[MATCHMAKING_SERVER] Listening on port " << _port << std::endl;
+    WriteConsole("[MATCHMAKING_SERVER] Listening on port ", _port);
 	return true;
 }
 
@@ -54,12 +54,12 @@ void MatchmakingServer::HandleMessage(const std::string& message, const sf::IpAd
     if (message == "FIND_MATCH:NORMAL")
     {
         _normalQueue.push({ sender, port });
-        std::cout << "[MATCHMAKING_SERVER] Player queued NORMAL: " << sender << ":" << port << std::endl;
+        WriteConsole("[MATCHMAKING_SERVER] Player queued NORMAL: ", sender, ":", port);
     }
     else if (message == "FIND_MATCH:RANKED")
     {
         _rankedQueue.push({ sender, port });
-        std::cout << "[MATCHMAKING_SERVER] Player queued RANKED: " << sender << ":" << port << std::endl;
+        WriteConsole("[MATCHMAKING_SERVER] Player queued RANKED: ", sender, ":", port);
     }
     else if (message == "CANCELED_SEARCHING")
     {
@@ -67,11 +67,13 @@ void MatchmakingServer::HandleMessage(const std::string& message, const sf::IpAd
             std::queue<ClientMatchInfo> tempQueue;
             while (!queue.empty()) {
                 ClientMatchInfo current = queue.front(); queue.pop();
-                if (!(current.ip == sender && current.port == port)) {
+                if (!(current.ip == sender && current.port == port)) 
+                {
                     tempQueue.push(current);
                 }
-                else {
-                    std::cout << "[MATCHMAKING_SERVER] Player canceled search: " << sender << ":" << port << "\n";
+                else 
+                {
+                    WriteConsole("[MATCHMAKING_SERVER] Player canceled search: ", sender, ":", port);
                 }
             }
             queue = std::move(tempQueue);
@@ -92,7 +94,7 @@ void MatchmakingServer::HandleMessage(const std::string& message, const sf::IpAd
                 if (p.player.ip == sender && p.player.port == port)
                 {
                     p.ackRecieved = true;
-                    std::cout << "[MATCHMAKING_SERVER] ACK received from " << sender << ":" << port << std::endl;
+                    WriteConsole("[MATCHMAKING_SERVER] ACK received from ", sender, ":", port);
                 }
             }
         }
@@ -107,6 +109,7 @@ void MatchmakingServer::ProcessMatchmaking(MatchQueue matchQueue)
     {
         MatchSession session;
         std::string matchMessage = std::string("MATCH_FOUND:127.0.0.1:60000:") + (matchQueue.type == MatchType::RANKED ? "RANKED" : "NORMAL");
+        
         for (unsigned int i = 0; i < _playersPerMatch; ++i)
         {
             ClientMatchInfo player = queue.front(); queue.pop();
@@ -116,8 +119,8 @@ void MatchmakingServer::ProcessMatchmaking(MatchQueue matchQueue)
 
         _pendingSessions.push_back(session);
 
-        std::cout << "[MATCHMAKING_SERVER] " << _playersPerMatch << " Player "
-            << (matchQueue.type == MatchType::RANKED ? "[RANKED]" : "[NORMAL]") << " Match created.\n";
+        WriteConsole("[MATCHMAKING_SERVER] ", _playersPerMatch, " Player ", 
+            (matchQueue.type == MatchType::RANKED ? "[RANKED]" : "[NORMAL]"), " Match created.");
     }
 }
 
@@ -140,7 +143,7 @@ void MatchmakingServer::ProcessACKS()
                 {
                     if (p.retries >= MAX_RETRIES)
                     {
-                        std::cout << "[MATCHMAKING_SERVER] Giving up on player " << p.player.ip << ":" << p.player.port << std::endl;
+                        WriteConsole("[MATCHMAKING_SERVER] Giving up on player ", p.player.ip, ":", p.player.port);
                         giveUp = true;
                         break;
                     }
@@ -159,7 +162,7 @@ void MatchmakingServer::ProcessACKS()
         }
         else if (allAcked)
         {
-            std::cout << "[MATCHMAKING_SERVER] All ACKs received. Starting match...\n";
+            WriteConsole("[MATCHMAKING_SERVER] All ACKs received. Starting match...");
             // Aquí puedes iniciar la lógica real de juego o notificar al game server
             it = _pendingSessions.erase(it);
         }
@@ -178,7 +181,7 @@ void MatchmakingServer::RemoveSessionAndReQueue(const MatchSession& session)
     {
         if (p.ackRecieved)
         {
-            std::cout << "[MATCHMAKING_SERVER] Returning " << p.player.ip << ":" << p.player.port << " to queue.\n";
+            WriteConsole("[MATCHMAKING_SERVER] Returning ", p.player.ip, ":", p.player.port, " to queue.");
             if (p.matchType == MatchType::NORMAL)
                 _normalQueue.push(p.player);
             else

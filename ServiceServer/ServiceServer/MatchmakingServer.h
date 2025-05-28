@@ -5,6 +5,7 @@
 #include <queue>
 #include <atomic>
 #include <iostream>
+#include "ConsoleUtils.h"
 
 constexpr int MAX_RETRIES = 5;
 constexpr float RESEND_INTERVAL = 1.0f;

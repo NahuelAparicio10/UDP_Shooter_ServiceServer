@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClInclude Include="bcrypt.h" />
     <ClInclude Include="ClientLR.h" />
+    <ClInclude Include="ConsoleUtils.h" />
     <ClInclude Include="DatabaseManager.h" />
     <ClInclude Include="LoginServer.h" />
     <ClInclude Include="MatchmakingServer.h" />

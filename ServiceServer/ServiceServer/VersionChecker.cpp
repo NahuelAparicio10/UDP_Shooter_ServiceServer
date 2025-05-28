@@ -8,10 +8,11 @@ bool VersionChecker::InitializeSocket()
 {
 	if (_socket.bind(_port) != sf::Socket::Status::Done) 
 	{
-		std::cerr << "[VersionChecker] Failed to bind to port " << _port << std::endl;
+		WriteConsole("[VersionChecker] Failed to bind to port ", _port);
 		return false;
 	}
-	std::cerr << "[VersionChecker] Listening on port " << _port << std::endl;
+
+	WriteConsole("[VersionChecker] Listening on port ", _port);
 	
 	return true;
 }
@@ -38,7 +39,7 @@ void VersionChecker::Run(std::atomic<bool>& running)
 }
 void VersionChecker::HandleClient(const std::string& message, const sf::IpAddress& sender, unsigned short senderPort)
 {
-	std::cout << "[VERSION_CHECKER] Received from " << sender << ":" << senderPort << " -> " << message << std::endl;
+	WriteConsole("[VERSION_CHECKER] Received from ", sender, ":", senderPort, " -> ", message);
 	
 	if (message.rfind("VERSION:", 0) == 0) 
 	{
@@ -65,7 +66,7 @@ void VersionChecker::SendFile(sf::IpAddress address, unsigned short port)
 
 	if (!file.is_open()) 
 	{
-		std::cerr << "[VERSION_CHECKER] Could not open map file: " << _mapFilePath << std::endl;
+		WriteConsole("[VERSION_CHECKER] Could not open map file: ", _mapFilePath);
 		return;
 	}
 
@@ -80,6 +81,6 @@ void VersionChecker::SendFile(sf::IpAddress address, unsigned short port)
 	std::string end = "EOF";
 	_socket.send(end.c_str(), end.size(), address, port);
 
-	std::cout << "[VERSION_CHECKER] Map sent to " << address << ":" << port << std::endl;
+	WriteConsole("[VERSION_CHECKER] Map sent to ", address, ":", port);
 }
 
