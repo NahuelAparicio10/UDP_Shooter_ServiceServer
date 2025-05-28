@@ -37,15 +37,18 @@
     <Filter Include="Header Files\MatchMaking">
       <UniqueIdentifier>{f98abf85-aadc-47ae-8ea4-5670013e4e6d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\VersionChecker">
+      <UniqueIdentifier>{e0d3fc9d-1488-4e67-87af-66a028e6cccb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\VersionChecker">
+      <UniqueIdentifier>{2f035ac2-2a36-48c3-a8b5-fe2088d43681}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
     <ClCompile Include="ServiceManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VersionChecker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="bcrypt.cpp">
@@ -66,12 +69,12 @@
     <ClCompile Include="MatchmakingServer.cpp">
       <Filter>Source Files\MatchMaking</Filter>
     </ClCompile>
+    <ClCompile Include="VersionChecker.cpp">
+      <Filter>Source Files\VersionChecker</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ServiceManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VersionChecker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="bcrypt.h">
@@ -97,6 +100,9 @@
     </ClInclude>
     <ClInclude Include="ConsoleUtils.h">
       <Filter>Header Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="VersionChecker.h">
+      <Filter>Header Files\VersionChecker</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

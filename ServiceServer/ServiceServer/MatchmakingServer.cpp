@@ -104,7 +104,6 @@ void MatchmakingServer::HandleMessage(const std::string& message, const sf::IpAd
 void MatchmakingServer::ProcessMatchmaking(MatchQueue matchQueue)
 {
     auto& queue = *matchQueue.queue;
-    std::cout << queue.size() << std::endl;
     while (queue.size() >= _playersPerMatch)
     {
         MatchSession session;
