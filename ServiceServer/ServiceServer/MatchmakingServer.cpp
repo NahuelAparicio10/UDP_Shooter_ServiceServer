@@ -12,16 +12,83 @@ void MatchmakingServer::Run(std::atomic<bool>& running)
 {
     if (!InitializeSocket()) return;
 
-    char buffer[1024];
-    std::size_t received;
-    std::optional<sf::IpAddress> sender = std::nullopt;
-    unsigned short senderPort;
+    //char buffer[1024];
+    //std::size_t received;
+    //std::optional<sf::IpAddress> sender = std::nullopt;
+    //unsigned short senderPort;
+    _dispatcher.RegisterHandler(PacketType::FIND_MATCH, [this](const RawPacketJob& job) {
+        if (job.content == "NORMAL") 
+        {
+            _normalQueue.push({ job.sender.value(), job.port});
+            WriteConsole("[MATCHMAKING] Player queued NORMAL: ", job.sender.value(), ":", job.port);
+        }
+        else if (job.content == "RANKED") 
+        {
+            _rankedQueue.push({ job.sender.value(), job.port});
+            WriteConsole("[MATCHMAKING] Player queued RANKED: ", job.sender.value(), ":", job.port);
+        }
+        });
 
+    _dispatcher.RegisterHandler(PacketType::CANCEL_SEARCH, [this](const RawPacketJob& job) {
+        auto removeFromQueue = [&](std::queue<ClientMatchInfo>& queue) {
+            std::queue<ClientMatchInfo> temp;
+            while (!queue.empty()) 
+            {
+                auto p = queue.front(); queue.pop();
+                if (!(p.ip == job.sender && p.port == job.port)) temp.push(p);
+                else WriteConsole("[MATCHMAKING] Cancelled: ", job.sender.value(), ":", job.port);
+            }
+            queue = std::move(temp);
+        };
+
+        removeFromQueue(_normalQueue);
+        removeFromQueue(_rankedQueue);
+
+        char response[64];
+        std::string payload = ""; // sin contenido extra
+        std::size_t size = CreateRawDatagram(PacketHeader::NORMAL, PacketType::OK, payload, response);
+        _socket.send(response, size, job.sender.value(), job.port);
+        });
+
+    _dispatcher.RegisterHandler(PacketType::ACK_MATCH_FOUND, [this](const RawPacketJob& job) 
+        {
+            for (auto& session : _pendingSessions) 
+            {
+                for (auto& p : session.players) {
+                    if (p.player.ip == job.sender && p.player.port == job.port) 
+                    {
+                        p.ackRecieved = true;
+                        WriteConsole("[MATCHMAKING] ACK received from ", job.sender.value(), ":", job.port);
+                    }
+                }
+            }
+        });
+
+    _dispatcher.Start();
     while (running)
     {
-        if (_socket.receive(buffer, sizeof(buffer), received, sender, senderPort) == sf::Socket::Status::Done) {
-            std::string message(buffer, received);
-            HandleMessage(message, sender.value(), senderPort);
+        //if (_socket.receive(buffer, sizeof(buffer), received, sender, senderPort) == sf::Socket::Status::Done) {
+        //    std::string message(buffer, received);
+        //    HandleMessage(message, sender.value(), senderPort);
+        //}
+
+        //if (_matchmakingTimer.getElapsedTime().asMilliseconds() > 100)
+        //{
+        //    ProcessMatchmaking({ MatchType::NORMAL, &_normalQueue });
+        //    ProcessMatchmaking({ MatchType::RANKED, &_rankedQueue });
+        //    ProcessACKS();
+        //    _matchmakingTimer.restart();
+        //}
+        char buffer[1024];
+        std::size_t received;
+        std::optional<sf::IpAddress> sender = std::nullopt;
+        unsigned short port;
+
+        if (_socket.receive(buffer, sizeof(buffer), received, sender, port) == sf::Socket::Status::Done)
+        {
+            RawPacketJob job;
+            if (ParseRawDatagram(buffer, received, job, sender.value(), port))
+                _dispatcher.EnqueuePacket(job);
         }
 
         if (_matchmakingTimer.getElapsedTime().asMilliseconds() > 100)
@@ -32,6 +99,7 @@ void MatchmakingServer::Run(std::atomic<bool>& running)
             _matchmakingTimer.restart();
         }
     }
+    _dispatcher.Stop();
 }
 
 // -- Binds UDP port for matchmaking 
@@ -111,9 +179,13 @@ void MatchmakingServer::ProcessMatchmaking(MatchQueue matchQueue)
         
         for (unsigned int i = 0; i < _playersPerMatch; ++i)
         {
+            // TODO: Asignar ID al jugador
             ClientMatchInfo player = queue.front(); queue.pop();
             session.players.push_back({ player, matchMessage, 0, sf::Clock(), false, matchQueue.type });
             _socket.send(matchMessage.c_str(), matchMessage.size(), player.ip, player.port);
+            
+            // ID to assign
+            playerID++;
         }
 
         _pendingSessions.push_back(session);

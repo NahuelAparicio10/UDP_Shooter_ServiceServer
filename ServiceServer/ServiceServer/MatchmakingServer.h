@@ -6,6 +6,7 @@
 #include <atomic>
 #include <iostream>
 #include "ConsoleUtils.h"
+#include "PacketDispatcher.h"
 
 constexpr int MAX_RETRIES = 5;
 constexpr float RESEND_INTERVAL = 1.0f;
@@ -58,6 +59,8 @@ private:
     sf::Clock _matchmakingTimer;
 
     std::vector<MatchSession> _pendingSessions;
-
+    int playerID = 0;
     unsigned int _playersPerMatch = 3;
+
+    PacketDispatcher _dispatcher;
 };
