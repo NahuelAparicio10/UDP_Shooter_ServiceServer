@@ -32,18 +32,18 @@ void VersionChecker::Run(std::atomic<bool>& running)
 		if (version == _lastestVersion) 
 		{
 			char buffer[64];
-			std::string payload = ""; // sin contenido extra
-			std::size_t size = CreateRawDatagram(PacketHeader::NORMAL, PacketType::OK, payload, buffer);
-			_socket.send(buffer, size, job.sender.value(), job.port);
+			//std::size_t size = CreateRawDatagram(PacketHeader::NORMAL, PacketType::OK, payload, buffer);
+			//_socket.send(buffer, size, job.sender.value(), job.port);
+			SendDatagram(_socket, PacketHeader::NORMAL, PacketType::OK, "", job.sender.value(), job.port);
 		}
 		else 
 		{
 			char buffer[64];
 			std::string payload = _lastestVersion;
-			std::size_t size = CreateRawDatagram(PacketHeader::NORMAL, PacketType::UPDATE, payload, buffer);
-			_socket.send(buffer, size, job.sender.value(), job.port);
+			//std::size_t size = CreateRawDatagram(PacketHeader::NORMAL, PacketType::UPDATE, payload, buffer);
+			//_socket.send(buffer, size, job.sender.value(), job.port);
+			SendDatagram(_socket, PacketHeader::NORMAL, PacketType::UPDATE, payload, job.sender.value(), job.port);
 			SendFile(job.sender.value(), job.port);
-			//SendDatagram(_socket, PacketHeader::NORMAL, PacketType::EOFF, "", job.sender.value(), job.port);
 		}	
 		});
 
@@ -51,7 +51,6 @@ void VersionChecker::Run(std::atomic<bool>& running)
 
 	while (running) 
 	{
-
 		char buffer[1024];
 		std::size_t received;
 		std::optional<sf::IpAddress> sender = std::nullopt;
@@ -66,28 +65,6 @@ void VersionChecker::Run(std::atomic<bool>& running)
 	}
 	_dispatcher.Stop();
 }
-//void VersionChecker::HandleClient(const std::string& message, const sf::IpAddress& sender, unsigned short senderPort)
-//{
-//	WriteConsole("[VERSION_CHECKER] Received from ", sender, ":", senderPort, " -> ", message);
-//	
-//	if (message.rfind("VERSION:", 0) == 0) 
-//	{
-//		std::string version = message.substr(8);
-//
-//		if (version == _lastestVersion) 
-//		{
-//			std::string ok = "OK";
-//			_socket.send(ok.c_str(), ok.size(), sender, senderPort);
-//		}
-//		else 
-//		{
-//			std::string update = "UPDATE:" + _lastestVersion;
-//			_socket.send(update.c_str(), update.size(), sender, senderPort);
-//
-//			SendFile(sender, senderPort);
-//		}
-//	}
-//}
 
 void VersionChecker::SendFile(sf::IpAddress address, unsigned short port)
 {
