@@ -1,0 +1,10 @@
+E:\3r CDI\Xarxes\AA4_UDP_Shooter\AA4_ServiceServer\ServiceServer\ServiceServer\bcrypt.cpp;E:\3r CDI\Xarxes\AA4_UDP_Shooter\AA4_ServiceServer\ServiceServer\ServiceServer\x64\Release\bcrypt.obj
+E:\3r CDI\Xarxes\AA4_UDP_Shooter\AA4_ServiceServer\ServiceServer\ServiceServer\blowfish.cpp;E:\3r CDI\Xarxes\AA4_UDP_Shooter\AA4_ServiceServer\ServiceServer\ServiceServer\x64\Release\blowfish.obj
+E:\3r CDI\Xarxes\AA4_UDP_Shooter\AA4_ServiceServer\ServiceServer\ServiceServer\ClientLR.cpp;E:\3r CDI\Xarxes\AA4_UDP_Shooter\AA4_ServiceServer\ServiceServer\ServiceServer\x64\Release\ClientLR.obj
+E:\3r CDI\Xarxes\AA4_UDP_Shooter\AA4_ServiceServer\ServiceServer\ServiceServer\DatabaseManager.cpp;E:\3r CDI\Xarxes\AA4_UDP_Shooter\AA4_ServiceServer\ServiceServer\ServiceServer\x64\Release\DatabaseManager.obj
+E:\3r CDI\Xarxes\AA4_UDP_Shooter\AA4_ServiceServer\ServiceServer\ServiceServer\LoginServer.cpp;E:\3r CDI\Xarxes\AA4_UDP_Shooter\AA4_ServiceServer\ServiceServer\ServiceServer\x64\Release\LoginServer.obj
+E:\3r CDI\Xarxes\AA4_UDP_Shooter\AA4_ServiceServer\ServiceServer\ServiceServer\Main.cpp;E:\3r CDI\Xarxes\AA4_UDP_Shooter\AA4_ServiceServer\ServiceServer\ServiceServer\x64\Release\Main.obj
+E:\3r CDI\Xarxes\AA4_UDP_Shooter\AA4_ServiceServer\ServiceServer\ServiceServer\MatchmakingServer.cpp;E:\3r CDI\Xarxes\AA4_UDP_Shooter\AA4_ServiceServer\ServiceServer\ServiceServer\x64\Release\MatchmakingServer.obj
+E:\3r CDI\Xarxes\AA4_UDP_Shooter\AA4_ServiceServer\ServiceServer\ServiceServer\PacketDispatcher.cpp;E:\3r CDI\Xarxes\AA4_UDP_Shooter\AA4_ServiceServer\ServiceServer\ServiceServer\x64\Release\PacketDispatcher.obj
+E:\3r CDI\Xarxes\AA4_UDP_Shooter\AA4_ServiceServer\ServiceServer\ServiceServer\ServiceManager.cpp;E:\3r CDI\Xarxes\AA4_UDP_Shooter\AA4_ServiceServer\ServiceServer\ServiceServer\x64\Release\ServiceManager.obj
+E:\3r CDI\Xarxes\AA4_UDP_Shooter\AA4_ServiceServer\ServiceServer\ServiceServer\VersionChecker.cpp;E:\3r CDI\Xarxes\AA4_UDP_Shooter\AA4_ServiceServer\ServiceServer\ServiceServer\x64\Release\VersionChecker.obj
