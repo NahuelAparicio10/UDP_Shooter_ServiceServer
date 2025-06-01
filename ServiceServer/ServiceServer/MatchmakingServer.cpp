@@ -46,8 +46,9 @@ void MatchmakingServer::Run(std::atomic<bool>& running)
 
         char response[64];
         std::string payload = ""; // sin contenido extra
-        std::size_t size = CreateRawDatagram(PacketHeader::NORMAL, PacketType::OK, payload, response);
-        _socket.send(response, size, job.sender.value(), job.port);
+        SendDatagram(_socket, PacketHeader::NORMAL, PacketType::OK, payload, job.sender.value(), job.port);
+        //std::size_t size = CreateRawDatagram(PacketHeader::NORMAL, PacketType::OK, payload, response);
+        //_socket.send(response, size, job.sender.value(), job.port);
         });
 
     _dispatcher.RegisterHandler(PacketType::ACK_MATCH_FOUND, [this](const RawPacketJob& job) 
