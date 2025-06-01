@@ -21,11 +21,13 @@ void MatchmakingServer::Run(std::atomic<bool>& running)
         {
             _normalQueue.push({ job.sender.value(), job.port});
             WriteConsole("[MATCHMAKING] Player queued NORMAL: ", job.sender.value(), ":", job.port);
+        SendDatagram(_socket, PacketHeader::CRITICAL, PacketType::SEARCH_ACK, "", job.sender.value(), job.port);
         }
         else if (job.content == "RANKED") 
         {
             _rankedQueue.push({ job.sender.value(), job.port});
             WriteConsole("[MATCHMAKING] Player queued RANKED: ", job.sender.value(), ":", job.port);
+        SendDatagram(_socket, PacketHeader::CRITICAL, PacketType::SEARCH_ACK, "", job.sender.value(), job.port);
         }
         });
 
