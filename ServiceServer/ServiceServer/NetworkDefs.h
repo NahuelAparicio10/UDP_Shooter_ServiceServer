@@ -23,7 +23,8 @@ enum class PacketType : uint8_t {
     JOIN_GAME = 10,
     CREATE_MATCH = 11,
     MATCH_UNIQUE = 12,
-    MATCH_USED = 13
+    MATCH_USED = 13,
+    ACK_MATCH_CREATED = 14,
 
 };
 

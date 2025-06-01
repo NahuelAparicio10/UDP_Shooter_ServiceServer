@@ -192,8 +192,8 @@ void MatchmakingServer::ProcessMatchmaking(MatchQueue matchQueue)
         matchData.type = matchQueue.type;
         matchData.players = players;
 
-        std::string serialized = SerializeMatch(matchData);
-        SendDatagram(_socket, PacketHeader::CRITICAL, PacketType::MATCH_FOUND, serialized, GameServerIP.value(), GameServerPort);
+        //std::string serialized = SerializeMatch(matchData);
+        //SendDatagram(_socket, PacketHeader::CRITICAL, PacketType::MATCH_FOUND, serialized, GameServerIP.value(), GameServerPort);
 
         // 4. Notificar a los clientes con su IP:PORT:MATCHID:PLAYERID
         MatchSession session;
