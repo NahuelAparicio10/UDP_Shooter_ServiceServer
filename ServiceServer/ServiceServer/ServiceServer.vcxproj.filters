@@ -113,10 +113,13 @@
     <ClInclude Include="NetworkDefs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="PacketDispatcher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Constants.h">
+    <ClInclude Include="StartMatchData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

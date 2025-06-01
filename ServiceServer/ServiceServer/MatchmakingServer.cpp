@@ -8,26 +8,27 @@ MatchmakingServer::~MatchmakingServer() { _socket.unbind(); }
 
 void MatchmakingServer::SetPlayersPerMatch(unsigned int count) { _playersPerMatch = count; }
 
+std::string MatchmakingServer::GenerateMatchID() {
+    static int matchCounter = 0;
+    return "MATCH_" + std::to_string(++matchCounter);
+}
+
 void MatchmakingServer::Run(std::atomic<bool>& running)
 {
     if (!InitializeSocket()) return;
 
-    //char buffer[1024];
-    //std::size_t received;
-    //std::optional<sf::IpAddress> sender = std::nullopt;
-    //unsigned short senderPort;
     _dispatcher.RegisterHandler(PacketType::FIND_MATCH, [this](const RawPacketJob& job) {
         if (job.content == "NORMAL") 
         {
             _normalQueue.push({ job.sender.value(), job.port});
-            WriteConsole("[MATCHMAKING] Player queued NORMAL: ", job.sender.value(), ":", job.port);
-        SendDatagram(_socket, PacketHeader::CRITICAL, PacketType::SEARCH_ACK, "", job.sender.value(), job.port);
+            WriteConsole("[MATCHMAKING] Player queued NORMAL: ", job.sender.value().toString(), ":", std::to_string(job.port), "  Queue size: ", _normalQueue.size());
+            SendDatagram(_socket, PacketHeader::CRITICAL, PacketType::SEARCH_ACK, "", job.sender.value(), job.port);
         }
         else if (job.content == "RANKED") 
         {
             _rankedQueue.push({ job.sender.value(), job.port});
-            WriteConsole("[MATCHMAKING] Player queued RANKED: ", job.sender.value(), ":", job.port);
-        SendDatagram(_socket, PacketHeader::CRITICAL, PacketType::SEARCH_ACK, "", job.sender.value(), job.port);
+            WriteConsole("[MATCHMAKING] Player queued NORMAL: ", job.sender.value().toString(), ":", std::to_string(job.port), "  Queue size: ", _normalQueue.size());
+            SendDatagram(_socket, PacketHeader::CRITICAL, PacketType::SEARCH_ACK, "", job.sender.value(), job.port);
         }
         });
 
@@ -49,8 +50,6 @@ void MatchmakingServer::Run(std::atomic<bool>& running)
         char response[64];
         std::string payload = "";
         SendDatagram(_socket, PacketHeader::CRITICAL, PacketType::OK, payload, job.sender.value(), job.port);
-        //std::size_t size = CreateRawDatagram(PacketHeader::NORMAL, PacketType::OK, payload, response);
-        //_socket.send(response, size, job.sender.value(), job.port);
         });
 
     _dispatcher.RegisterHandler(PacketType::ACK_MATCH_FOUND, [this](const RawPacketJob& job) 
@@ -68,32 +67,20 @@ void MatchmakingServer::Run(std::atomic<bool>& running)
         });
 
     _dispatcher.Start();
+
     while (running)
     {
-        //if (_socket.receive(buffer, sizeof(buffer), received, sender, senderPort) == sf::Socket::Status::Done) {
-        //    std::string message(buffer, received);
-        //    HandleMessage(message, sender.value(), senderPort);
-        //}
-
-        //if (_matchmakingTimer.getElapsedTime().asMilliseconds() > 100)
-        //{
-        //    ProcessMatchmaking({ MatchType::NORMAL, &_normalQueue });
-        //    ProcessMatchmaking({ MatchType::RANKED, &_rankedQueue });
-        //    ProcessACKS();
-        //    _matchmakingTimer.restart();
-        //}
         char buffer[1024];
         std::size_t received;
         std::optional<sf::IpAddress> sender = std::nullopt;
         unsigned short port;
-
+        _socket.setBlocking(false);
         if (_socket.receive(buffer, sizeof(buffer), received, sender, port) == sf::Socket::Status::Done)
         {
             RawPacketJob job;
             if (ParseRawDatagram(buffer, received, job, sender.value(), port))
                 _dispatcher.EnqueuePacket(job);
         }
-
         if (_matchmakingTimer.getElapsedTime().asMilliseconds() > 100)
         {
             ProcessMatchmaking({ MatchType::NORMAL, &_normalQueue });
@@ -118,85 +105,112 @@ bool MatchmakingServer::InitializeSocket()
 	return true;
 }
 
-// -- Handles UDP mesasge recived and checks if its a NORMAL or RANKED find match or any
-
-//void MatchmakingServer::HandleMessage(const std::string& message, const sf::IpAddress& sender, unsigned short port)
-//{
-//    if (message == "FIND_MATCH:NORMAL")
-//    {
-//        _normalQueue.push({ sender, port });
-//        WriteConsole("[MATCHMAKING_SERVER] Player queued NORMAL: ", sender, ":", port);
-//    }
-//    else if (message == "FIND_MATCH:RANKED")
-//    {
-//        _rankedQueue.push({ sender, port });
-//        WriteConsole("[MATCHMAKING_SERVER] Player queued RANKED: ", sender, ":", port);
-//    }
-//    else if (message == "CANCELED_SEARCHING")
-//    {
-//        auto removeFromQueue = [&](std::queue<ClientMatchInfo>& queue) {
-//            std::queue<ClientMatchInfo> tempQueue;
-//            while (!queue.empty()) {
-//                ClientMatchInfo current = queue.front(); queue.pop();
-//                if (!(current.ip == sender && current.port == port)) 
-//                {
-//                    tempQueue.push(current);
-//                }
-//                else 
-//                {
-//                    WriteConsole("[MATCHMAKING_SERVER] Player canceled search: ", sender, ":", port);
-//                }
-//            }
-//            queue = std::move(tempQueue);
-//        };
-//
-//        removeFromQueue(_normalQueue);
-//        removeFromQueue(_rankedQueue);
-//
-//        std::string confirm = "CANCEL_CONFIRMED";
-//        _socket.send(confirm.c_str(), confirm.size(), sender, port);
-//    }
-//    else if (message == "ACK_MATCH_FOUND")
-//    {
-//        for (auto& session : _pendingSessions)
-//        {
-//            for (auto& p : session.players)
-//            {
-//                if (p.player.ip == sender && p.player.port == port)
-//                {
-//                    p.ackRecieved = true;
-//                    WriteConsole("[MATCHMAKING_SERVER] ACK received from ", sender, ":", port);
-//                }
-//            }
-//        }
-//    }
-//}
 
 void MatchmakingServer::ProcessMatchmaking(MatchQueue matchQueue)
 {
+    if (matchQueue.queue->size() >= 2)
+    {
+        WriteConsole("[DEBUG] Queue size: ", _normalQueue.size());
+        WriteConsole("[DEBUG] Queue size: ", _rankedQueue.size());
+
+    }
+
     auto& queue = *matchQueue.queue;
-    WriteConsole("[DEBUG] Queue size: ", queue.size());
     while (queue.size() >= _playersPerMatch)
     {
-        MatchSession session;
-        std::string matchMessage = std::string("MATCH_FOUND:" + GameServerIP.value().toString() + ":" + std::to_string(GameServerPort)) + (matchQueue.type == MatchType::RANKED ? "RANKED" : "NORMAL");
-        
+        // 1. Extraer jugadores y asignar playerID
+        std::vector<ClientMatchInfo> players;
         for (unsigned int i = 0; i < _playersPerMatch; ++i)
         {
-            // TODO: Asignar ID al jugador
-            ClientMatchInfo player = queue.front(); queue.pop();
-            session.players.push_back({ player, matchMessage, 0, sf::Clock(), false, matchQueue.type });
-            //_socket.send(matchMessage.c_str(), matchMessage.size(), player.ip, player.port);
-            
-            SendDatagram(_socket, PacketHeader::CRITICAL, PacketType::MATCH_FOUND, matchMessage, player.ip, player.port);
-            // ID to assign
-            playerID++;
+            ClientMatchInfo info = queue.front(); queue.pop();
+            info.playerID = i;
+            players.push_back(info);
+        }
+
+        // 2. Intentar crear match único con el GameServer
+        std::string matchIDStr;
+        unsigned int matchID;
+        bool created = false;
+        int attempts = 0;
+
+        while (!created && attempts < 5)
+        {
+            matchIDStr = GenerateMatchID(); 
+            matchID = std::stoi(matchIDStr.substr(6)); 
+
+            StartMatchData matchData;
+            matchData.matchID = matchID;
+            matchData.type = matchQueue.type;
+            matchData.players = players;
+
+            std::string serialized = SerializeMatch(matchData);
+            SendDatagram(_socket, PacketHeader::CRITICAL, PacketType::CREATE_MATCH, serialized, GameServerIP.value(), GameServerPort);
+
+            sf::Clock waitTimer;
+            while (waitTimer.getElapsedTime().asSeconds() < 1.0f)
+            {
+                char buffer[1024];
+                std::size_t received = 0;
+                std::optional<sf::IpAddress> sender = std::nullopt;
+                unsigned short port;
+                _socket.setBlocking(false);
+                if (_socket.receive(buffer, sizeof(buffer), received, sender, port) == sf::Socket::Status::Done &&
+                    sender == GameServerIP && port == GameServerPort)
+                {
+                    RawPacketJob job;
+                    if (ParseRawDatagram(buffer, received, job, sender.value(), port))
+                    {
+                        if (job.type == PacketType::MATCH_UNIQUE)
+                        {
+                            created = true;
+                            break;
+                        }
+                        else if (job.type == PacketType::MATCH_USED)
+                        {
+                            WriteConsole("[MATCHMAKING_SERVER] Match ID already in use, retrying...");
+                            break;
+                        }
+                    }
+                }
+
+                sf::sleep(sf::milliseconds(100));
+            }
+
+            ++attempts;
+        }
+
+        if (!created)
+        {
+            WriteConsole("[MATCHMAKING_SERVER] Failed to create unique match after retries.");
+            for (auto& p : players) queue.push(p);
+            return;
+        }
+
+        // 3. Enviar StartMatchData completo al GameServer
+        StartMatchData matchData;
+        matchData.matchID = matchID;
+        matchData.type = matchQueue.type;
+        matchData.players = players;
+
+        std::string serialized = SerializeMatch(matchData);
+        SendDatagram(_socket, PacketHeader::CRITICAL, PacketType::MATCH_FOUND, serialized, GameServerIP.value(), GameServerPort);
+
+        // 4. Notificar a los clientes con su IP:PORT:MATCHID:PLAYERID
+        MatchSession session;
+        for (const auto& p : players)
+        {
+            std::string msg = GameServerIP.value().toString() + ":" +
+                std::to_string(GameServerPort) + ":" +
+                std::to_string(matchID) + ":" +
+                std::to_string(p.playerID);
+
+            session.players.push_back({ p, msg, 0, sf::Clock(), false, matchQueue.type });
+
+            SendDatagram(_socket, PacketHeader::CRITICAL, PacketType::MATCH_FOUND, msg, p.ip, p.port);
         }
 
         _pendingSessions.push_back(session);
-        //Mangar al Game Server
-        WriteConsole("[MATCHMAKING_SERVER] ", _playersPerMatch, " Player ", 
-            (matchQueue.type == MatchType::RANKED ? "[RANKED]" : "[NORMAL]"), " Match created.");
+        WriteConsole("[MATCHMAKING_SERVER] Created match '", matchID, "' with ", players.size(), " players.");
     }
 }
 

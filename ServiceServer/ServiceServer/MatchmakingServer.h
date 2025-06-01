@@ -8,16 +8,11 @@
 #include "ConsoleUtils.h"
 #include "PacketDispatcher.h"
 #include "Constants.h"
-
+#include "StartMatchData.h"
 constexpr int MAX_RETRIES = 5;
 constexpr float RESEND_INTERVAL = 1.0f;
 
-enum class MatchType { NORMAL, RANKED };
 
-struct ClientMatchInfo {
-    sf::IpAddress ip;
-    unsigned short port;
-};
 
 struct PendingMatch {
     ClientMatchInfo player;
@@ -45,9 +40,10 @@ public:
     void Run(std::atomic<bool>& running);
     void SetPlayersPerMatch(unsigned int count);
 
+
 private:
+    std::string GenerateMatchID();
     bool InitializeSocket();
-    void HandleMessage(const std::string& message, const sf::IpAddress& sender, unsigned short port);
     void ProcessMatchmaking(MatchQueue matchQueue);
     void ProcessACKS();
     void RemoveSessionAndReQueue(const MatchSession& session);
@@ -59,7 +55,6 @@ private:
     sf::Clock _matchmakingTimer;
 
     std::vector<MatchSession> _pendingSessions;
-    int playerID = 0;
     unsigned int _playersPerMatch = 2;
 
     PacketDispatcher _dispatcher;

@@ -160,6 +160,7 @@
     <ClInclude Include="Packet.hpp" />
     <ClInclude Include="PacketDispatcher.h" />
     <ClInclude Include="ServiceManager.h" />
+    <ClInclude Include="StartMatchData.h" />
     <ClInclude Include="VersionChecker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
