@@ -19,11 +19,11 @@ public:
 	void Run(std::atomic<bool>& running);
 
 private:
-	const std::string _lastestVersion = "0.43";
-	const std::string _mapFilePath = "Maps/map_v0_0.txt";
+	std::string _lastestVersion;
 	sf::UdpSocket _socket;
 
 	bool InitializeSocket();
+	std::string GetLocalVersion();
 	//void HandleClient(const std::string& message, const sf::IpAddress& sender, unsigned short senderPort);
 	void SendFile(sf::IpAddress address, unsigned short port);
 	PacketDispatcher _dispatcher;
