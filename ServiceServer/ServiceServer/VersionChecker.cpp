@@ -6,12 +6,13 @@ VersionChecker::~VersionChecker() { _socket.unbind(); }
 
 bool VersionChecker::InitializeSocket()
 {
-	if (_socket.bind(_port) != sf::Socket::Status::Done) 
+	if (_socket.bind(VersionCheckerServerPort) != sf::Socket::Status::Done)
 	{
-		std::cerr << "[VersionChecker] Failed to bind to port " << _port << std::endl;
+		WriteConsole("[VersionChecker] Failed to bind to port ", VersionCheckerServerPort);
 		return false;
 	}
-	std::cerr << "[VersionChecker] Listening on port " << _port << std::endl;
+
+	WriteConsole("[VersionChecker] Listening on port ", VersionCheckerServerPort);
 	
 	return true;
 }
@@ -20,66 +21,67 @@ void VersionChecker::Run(std::atomic<bool>& running)
 {
 	if (!InitializeSocket()) return;
 
-	char data[1024];
-	std::size_t received;
-	std::optional<sf::IpAddress> sender = std::nullopt;
-	unsigned short senderPort;
+	//char data[1024];
+	//std::size_t received;
+	//std::optional<sf::IpAddress> sender = std::nullopt;
+	//unsigned short senderPort;
 
-	while (running) 
-	{
-		sf::Socket::Status status = _socket.receive(data, sizeof(data), received, sender, senderPort);
-		
-		if (status == sf::Socket::Status::Done && sender.has_value()) 
-		{
-			std::string message(data, received);
-			HandleClient(message, sender.value(), senderPort);
-		}
-	}
-}
-void VersionChecker::HandleClient(const std::string& message, const sf::IpAddress& sender, unsigned short senderPort)
-{
-	std::cout << "[VERSION_CHECKER] Received from " << sender << ":" << senderPort << " -> " << message << std::endl;
-	
-	if (message.rfind("VERSION:", 0) == 0) 
-	{
-		std::string version = message.substr(8);
+	_dispatcher.RegisterHandler(PacketType::VERSION, [this](const RawPacketJob& job) {
+		std::string version = job.content;
 
 		if (version == _lastestVersion) 
 		{
-			std::string ok = "OK";
-			_socket.send(ok.c_str(), ok.size(), sender, senderPort);
+			char buffer[64];
+			//std::size_t size = CreateRawDatagram(PacketHeader::NORMAL, PacketType::OK, payload, buffer);
+			//_socket.send(buffer, size, job.sender.value(), job.port);
+			SendDatagram(_socket, PacketHeader::NORMAL, PacketType::OK, "", job.sender.value(), job.port);
 		}
 		else 
 		{
-			std::string update = "UPDATE:" + _lastestVersion;
-			_socket.send(update.c_str(), update.size(), sender, senderPort);
+			char buffer[64];
+			std::string payload = _lastestVersion;
+			//std::size_t size = CreateRawDatagram(PacketHeader::NORMAL, PacketType::UPDATE, payload, buffer);
+			//_socket.send(buffer, size, job.sender.value(), job.port);
+			SendDatagram(_socket, PacketHeader::NORMAL, PacketType::UPDATE, payload, job.sender.value(), job.port);
+			SendFile(job.sender.value(), job.port);
+		}	
+		});
 
-			SendFile(sender, senderPort);
+	_dispatcher.Start();
+
+	while (running) 
+	{
+		char buffer[1024];
+		std::size_t received;
+		std::optional<sf::IpAddress> sender = std::nullopt;
+		unsigned short port;
+
+		if (_socket.receive(buffer, sizeof(buffer), received, sender, port) == sf::Socket::Status::Done)
+		{
+			RawPacketJob job;
+			if (ParseRawDatagram(buffer, received, job, sender.value(), port))
+				_dispatcher.EnqueuePacket(job);
 		}
 	}
+	_dispatcher.Stop();
 }
 
 void VersionChecker::SendFile(sf::IpAddress address, unsigned short port)
 {
 	std::ifstream file(_mapFilePath);
-
-	if (!file.is_open()) 
-	{
-		std::cerr << "[VERSION_CHECKER] Could not open map file: " << _mapFilePath << std::endl;
+	if (!file.is_open()) {
+		WriteConsole("[VERSION_CHECKER] Could not open map file: ", _mapFilePath);
 		return;
 	}
 
+	std::ostringstream fullMap;
 	std::string line;
-	while (std::getline(file, line)) 
-	{
-		_socket.send(line.c_str(), line.size(), address, port);
-
-		sf::sleep(sf::milliseconds(10)); // Evita saturar la red
+	while (std::getline(file, line)) {
+		fullMap << line << "\n";
 	}
 
-	std::string end = "EOF";
-	_socket.send(end.c_str(), end.size(), address, port);
+	SendDatagram(_socket, PacketHeader::NORMAL, PacketType::UPDATE_MAP, fullMap.str(), address, port);
 
-	std::cout << "[VERSION_CHECKER] Map sent to " << address << ":" << port << std::endl;
+	WriteConsole("[VERSION_CHECKER] Map sent as single datagram to ", address, ":", port);
 }
 

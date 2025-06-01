@@ -4,6 +4,7 @@
 #include "DatabaseManager.h"
 #include "ClientLR.h"
 #include <SFML/Network.hpp>
+#include "ConsoleUtils.h"
 
 class LoginServer
 {

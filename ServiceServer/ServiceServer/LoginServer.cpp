@@ -15,7 +15,7 @@ void LoginServer::StartListening(unsigned short port)
 
     if (_listener.listen(port) != sf::Socket::Status::Done)
     {
-        std::cerr << "[LR_SERVER] Failed to bind port" << std::endl;
+        WriteConsole("[LR_SERVER] Failed to bind port");
     }
 
     _selector.add(_listener);
@@ -32,7 +32,7 @@ void LoginServer::AcceptNewConnection()
         socket->setBlocking(false);
         _selector.add(*socket);
         _clients.emplace_back(std::make_unique<ClientLR>(socket));
-        std::cout << "[LR_SERVER] New client connected." << std::endl;
+        WriteConsole("[LR_SERVER] New client connected.");
     }
     else 
     {
@@ -52,7 +52,7 @@ void LoginServer::ReceiveData(ClientLR* client)
 
         if (!(packet >> command))
         {
-            std::cerr << "[LR_SERVER] Failed to extract command" << std::endl;
+            WriteConsole("[LR_SERVER] Failed to extract command");
             return;
         }
 
@@ -62,7 +62,7 @@ void LoginServer::ReceiveData(ClientLR* client)
             
             if (!(packet >> nick >> pass)) 
             {
-                std::cerr << "[LR_SERVER] Failed to extract user & password" << std::endl;
+                WriteConsole("[LR_SERVER] Failed to extract user & password");
                 return;
             }
 

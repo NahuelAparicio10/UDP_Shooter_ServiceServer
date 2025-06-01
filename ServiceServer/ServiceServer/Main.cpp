@@ -1,5 +1,5 @@
 #include "ServiceManager.h"
-
+#include "ConsoleUtils.h"
 
 int main()
 {
@@ -7,10 +7,10 @@ int main()
 
 	serviceManager.InitializeServices();
 
-	std::cout << "[SERVICE SERVER] All services running. Press ENTER to stop." << std::endl;
+	WriteConsole("[SERVICE SERVER] All services running. Close Window to Exit.");
 	std::cin.get();
 
 	serviceManager.StopServices();
-	std::cout << "[SERVICE SERVER] Services stopped. Exiting." << std::endl;
+	WriteConsole("[SERVICE SERVER] Services stopped. Exiting.");
 	return 0;
 }

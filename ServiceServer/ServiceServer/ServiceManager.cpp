@@ -22,7 +22,7 @@ void ServiceManager::InitializeServices()
 {
 	_versionThread = std::thread(&VersionChecker::Run, _versionChecker, std::ref(_running));
 	_loginRegisterThread = std::thread(&LoginServer::Run, _loginServer, std::ref(_running));
-	//_matchMakingServer = std::thread(&MatchmakingServer::Run, _matchMakingServer, std::ref(_running));
+	_matchmakingThread = std::thread(&MatchmakingServer::Run, _matchMakingServer, std::ref(_running));
 }
 
 void ServiceManager::StopServices()
