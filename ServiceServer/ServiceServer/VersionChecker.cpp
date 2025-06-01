@@ -6,13 +6,13 @@ VersionChecker::~VersionChecker() { _socket.unbind(); }
 
 bool VersionChecker::InitializeSocket()
 {
-	if (_socket.bind(_port) != sf::Socket::Status::Done) 
+	if (_socket.bind(VersionCheckerServerPort) != sf::Socket::Status::Done)
 	{
-		WriteConsole("[VersionChecker] Failed to bind to port ", _port);
+		WriteConsole("[VersionChecker] Failed to bind to port ", VersionCheckerServerPort);
 		return false;
 	}
 
-	WriteConsole("[VersionChecker] Listening on port ", _port);
+	WriteConsole("[VersionChecker] Listening on port ", VersionCheckerServerPort);
 	
 	return true;
 }

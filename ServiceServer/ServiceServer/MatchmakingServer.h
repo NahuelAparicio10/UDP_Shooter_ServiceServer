@@ -7,6 +7,7 @@
 #include <iostream>
 #include "ConsoleUtils.h"
 #include "PacketDispatcher.h"
+#include "Constants.h"
 
 constexpr int MAX_RETRIES = 5;
 constexpr float RESEND_INTERVAL = 1.0f;
@@ -52,7 +53,6 @@ private:
     void RemoveSessionAndReQueue(const MatchSession& session);
 
     sf::UdpSocket _socket;
-    unsigned short _port = 9100;
 
     std::queue<ClientMatchInfo> _normalQueue;
     std::queue<ClientMatchInfo> _rankedQueue;
@@ -60,7 +60,7 @@ private:
 
     std::vector<MatchSession> _pendingSessions;
     int playerID = 0;
-    unsigned int _playersPerMatch = 3;
+    unsigned int _playersPerMatch = 2;
 
     PacketDispatcher _dispatcher;
 };

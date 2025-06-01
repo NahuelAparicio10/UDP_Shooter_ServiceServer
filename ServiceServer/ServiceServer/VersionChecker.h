@@ -7,6 +7,7 @@
 #include "ConsoleUtils.h"
 #include "PacketDispatcher.h"
 #include <sstream>
+#include "Constants.h"
 // -- Manages the versión client-map
 
 class VersionChecker
@@ -18,7 +19,6 @@ public:
 	void Run(std::atomic<bool>& running);
 
 private:
-	int _port = 9000;
 	const std::string _lastestVersion = "0.43";
 	const std::string _mapFilePath = "Maps/map_v0_0.txt";
 	sf::UdpSocket _socket;
