@@ -45,7 +45,7 @@ private:
     std::string GenerateMatchID();
     bool InitializeSocket();
     void ProcessMatchmaking(MatchQueue matchQueue);
-    void ProcessACKS();
+    void ProcessMatchSessionsACKS();
     void RemoveSessionAndReQueue(const MatchSession& session);
 
     sf::UdpSocket _socket;

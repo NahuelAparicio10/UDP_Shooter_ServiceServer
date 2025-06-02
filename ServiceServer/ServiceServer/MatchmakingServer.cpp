@@ -90,12 +90,13 @@ void MatchmakingServer::Run(std::atomic<bool>& running)
             if (ParseRawDatagram(buffer, received, job, sender.value(), port))
                 _dispatcher.EnqueuePacket(job);
         }
+
         // - Every 100ms checks if match is ready and processes pendingMatches ACK
         if (_matchmakingTimer.getElapsedTime().asMilliseconds() > 100)
         {
             ProcessMatchmaking({ MatchType::NORMAL, &_normalQueue });
             ProcessMatchmaking({ MatchType::RANKED, &_rankedQueue });
-            ProcessACKS();
+            ProcessMatchSessionsACKS();
             _matchmakingTimer.restart();
         }
     }
@@ -116,8 +117,7 @@ bool MatchmakingServer::InitializeSocket()
 
 
 void MatchmakingServer::ProcessMatchmaking(MatchQueue matchQueue)
-{
-    
+{    
     auto& queue = *matchQueue.queue;
     while (queue.size() >= _playersPerMatch)
     {
@@ -192,17 +192,7 @@ void MatchmakingServer::ProcessMatchmaking(MatchQueue matchQueue)
             return;
         }
 
-        // - Sending datagram with match info to GameServer
-        //StartMatchData matchData;
-        //matchData.matchID = matchID;
-        //matchData.type = matchQueue.type;
-        //matchData.players = players;
-        //matchData.numOfPlayers = _playersPerMatch;
-
-        //std::string serialized = SerializeMatch(matchData);
-        //SendDatagram(_socket, PacketHeader::URGENT, PacketType::MATCH_FOUND, serialized, GameServerIP.value(), GameServerPort);
-
-        // 4. Notificar a los clientes con su IP:PORT:MATCHID:PLAYERID
+        // - Notifies to clients with IP:PORT:MATCHID:PLAYERID
         MatchSession session;
         for (const auto& p : players)
         {
@@ -223,7 +213,7 @@ void MatchmakingServer::ProcessMatchmaking(MatchQueue matchQueue)
 }
 
 // -- Procceses resending the matchfound if client / ack is not being found
-void MatchmakingServer::ProcessACKS()
+void MatchmakingServer::ProcessMatchSessionsACKS()
 {
     for (auto it = _pendingSessions.begin(); it != _pendingSessions.end(); )
     {
@@ -275,8 +265,7 @@ void MatchmakingServer::ProcessACKS()
 void MatchmakingServer::RemoveSessionAndReQueue(const MatchSession& session)
 {
     for (const auto& p : session.players)
-    {
-        
+    {        
         if (p.ackRecieved)
         {
             WriteConsole("[MATCHMAKING_SERVER] Returning ", p.player.ip, ":", p.player.port, " to queue.");
