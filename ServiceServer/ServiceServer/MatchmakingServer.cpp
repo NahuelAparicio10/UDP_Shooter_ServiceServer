@@ -17,22 +17,29 @@ void MatchmakingServer::Run(std::atomic<bool>& running)
 {
     if (!InitializeSocket()) return;
 
+    // - Subscibe the content inside for when it's called by packet dispatcher (when received packet type FIND_MATCH)
     _dispatcher.RegisterHandler(PacketType::FIND_MATCH, [this](const RawPacketJob& job) {
+        // - Check if the client wants to list in a casual game
         if (job.content == "NORMAL") 
         {
             _normalQueue.push({ job.sender.value(), job.port});
             WriteConsole("[MATCHMAKING] Player queued NORMAL: ", job.sender.value().toString(), ":", std::to_string(job.port), "  Queue size: ", _normalQueue.size());
-            SendDatagram(_socket, PacketHeader::CRITICAL, PacketType::SEARCH_ACK, "", job.sender.value(), job.port);
+            // - Send ACK 
+            SendDatagram(_socket, PacketHeader::URGENT, PacketType::SEARCH_ACK, "", job.sender.value(), job.port);
         }
+        // - Check if the client wants to list in a ranked game
         else if (job.content == "RANKED") 
         {
             _rankedQueue.push({ job.sender.value(), job.port});
             WriteConsole("[MATCHMAKING] Player queued NORMAL: ", job.sender.value().toString(), ":", std::to_string(job.port), "  Queue size: ", _normalQueue.size());
-            SendDatagram(_socket, PacketHeader::CRITICAL, PacketType::SEARCH_ACK, "", job.sender.value(), job.port);
+            // - Send ACK 
+            SendDatagram(_socket, PacketHeader::URGENT, PacketType::SEARCH_ACK, "", job.sender.value(), job.port);
         }
-        });
+    });
 
-    _dispatcher.RegisterHandler(PacketType::CANCEL_SEARCH, [this](const RawPacketJob& job) {
+    // - Subscibe the content inside for when it's called by packet dispatcher (when received packet type CANCEL_MATCH)
+        _dispatcher.RegisterHandler(PacketType::CANCEL_SEARCH, [this](const RawPacketJob& job) {
+        // - OnCancel removes clients from queue and and send ACK (cancelled confirmation)
         auto removeFromQueue = [&](std::queue<ClientMatchInfo>& queue) {
             std::queue<ClientMatchInfo> temp;
             while (!queue.empty()) 
@@ -49,11 +56,13 @@ void MatchmakingServer::Run(std::atomic<bool>& running)
 
         char response[64];
         std::string payload = "";
-        SendDatagram(_socket, PacketHeader::CRITICAL, PacketType::OK, payload, job.sender.value(), job.port);
+        SendDatagram(_socket, PacketHeader::URGENT, PacketType::OK, payload, job.sender.value(), job.port);
         });
 
-    _dispatcher.RegisterHandler(PacketType::ACK_MATCH_FOUND, [this](const RawPacketJob& job) 
+    // - Subscibe the content inside for when it's called by packet dispatcher (when received packet type ACK_FOUND)
+        _dispatcher.RegisterHandler(PacketType::ACK_MATCH_FOUND, [this](const RawPacketJob& job) 
         {
+                // - On ACK received remove session from resending match found
             for (auto& session : _pendingSessions) 
             {
                 for (auto& p : session.players) {
@@ -67,7 +76,7 @@ void MatchmakingServer::Run(std::atomic<bool>& running)
         });
 
     _dispatcher.Start();
-
+    // - Main loop where is receiveng the datagrams
     while (running)
     {
         char buffer[1024];
@@ -81,6 +90,7 @@ void MatchmakingServer::Run(std::atomic<bool>& running)
             if (ParseRawDatagram(buffer, received, job, sender.value(), port))
                 _dispatcher.EnqueuePacket(job);
         }
+        // - Every 100ms checks if match is ready and processes pendingMatches ACK
         if (_matchmakingTimer.getElapsedTime().asMilliseconds() > 100)
         {
             ProcessMatchmaking({ MatchType::NORMAL, &_normalQueue });
@@ -93,7 +103,6 @@ void MatchmakingServer::Run(std::atomic<bool>& running)
 }
 
 // -- Binds UDP port for matchmaking 
-
 bool MatchmakingServer::InitializeSocket()
 {
 	if (_socket.bind(MatchMakingServerPort) != sf::Socket::Status::Done)
@@ -108,17 +117,11 @@ bool MatchmakingServer::InitializeSocket()
 
 void MatchmakingServer::ProcessMatchmaking(MatchQueue matchQueue)
 {
-    if (matchQueue.queue->size() >= 2)
-    {
-        WriteConsole("[DEBUG] Queue size: ", _normalQueue.size());
-        WriteConsole("[DEBUG] Queue size: ", _rankedQueue.size());
-
-    }
-
+    
     auto& queue = *matchQueue.queue;
     while (queue.size() >= _playersPerMatch)
     {
-        // 1. Extraer jugadores y asignar playerID
+        // - Extract number of layers from queue and generates IDs
         std::vector<ClientMatchInfo> players;
         for (unsigned int i = 0; i < _playersPerMatch; ++i)
         {
@@ -127,7 +130,7 @@ void MatchmakingServer::ProcessMatchmaking(MatchQueue matchQueue)
             players.push_back(info);
         }
 
-        // 2. Intentar crear match único con el GameServer
+        // - Tries to create an unique GameServerID
         std::string matchIDStr;
         unsigned int matchID;
         bool created = false;
@@ -142,9 +145,10 @@ void MatchmakingServer::ProcessMatchmaking(MatchQueue matchQueue)
             matchData.matchID = matchID;
             matchData.type = matchQueue.type;
             matchData.players = players;
+            matchData.numOfPlayers = _playersPerMatch;
 
             std::string serialized = SerializeMatch(matchData);
-            SendDatagram(_socket, PacketHeader::CRITICAL, PacketType::CREATE_MATCH, serialized, GameServerIP.value(), GameServerPort);
+            SendDatagram(_socket, PacketHeader::URGENT, PacketType::CREATE_MATCH, serialized, GameServerIP.value(), GameServerPort);
 
             sf::Clock waitTimer;
             while (waitTimer.getElapsedTime().asSeconds() < 1.0f)
@@ -154,6 +158,8 @@ void MatchmakingServer::ProcessMatchmaking(MatchQueue matchQueue)
                 std::optional<sf::IpAddress> sender = std::nullopt;
                 unsigned short port;
                 _socket.setBlocking(false);
+
+                // - While listening to GameServer port, if receives MATCH_UNIQUE go create match if not retries with other random MatchID
                 if (_socket.receive(buffer, sizeof(buffer), received, sender, port) == sf::Socket::Status::Done &&
                     sender == GameServerIP && port == GameServerPort)
                 {
@@ -186,14 +192,15 @@ void MatchmakingServer::ProcessMatchmaking(MatchQueue matchQueue)
             return;
         }
 
-        // 3. Enviar StartMatchData completo al GameServer
+        // - Sending datagram with match info to GameServer
         StartMatchData matchData;
         matchData.matchID = matchID;
         matchData.type = matchQueue.type;
         matchData.players = players;
+        matchData.numOfPlayers = _playersPerMatch;
 
-        std::string serialized = SerializeMatch(matchData);
-        SendDatagram(_socket, PacketHeader::CRITICAL, PacketType::MATCH_FOUND, serialized, GameServerIP.value(), GameServerPort);
+        //std::string serialized = SerializeMatch(matchData);
+        //SendDatagram(_socket, PacketHeader::URGENT, PacketType::MATCH_FOUND, serialized, GameServerIP.value(), GameServerPort);
 
         // 4. Notificar a los clientes con su IP:PORT:MATCHID:PLAYERID
         MatchSession session;
@@ -206,7 +213,8 @@ void MatchmakingServer::ProcessMatchmaking(MatchQueue matchQueue)
 
             session.players.push_back({ p, msg, 0, sf::Clock(), false, matchQueue.type });
 
-            SendDatagram(_socket, PacketHeader::CRITICAL, PacketType::MATCH_FOUND, msg, p.ip, p.port);
+            SendDatagram(_socket, PacketHeader::URGENT, PacketType::MATCH_FOUND, msg, p.ip, p.port);
+            WriteConsole("[MATCHMAKING_SERVER] Player id ", p.playerID , "' with match id ", matchID, "\n");
         }
 
         _pendingSessions.push_back(session);
@@ -215,7 +223,6 @@ void MatchmakingServer::ProcessMatchmaking(MatchQueue matchQueue)
 }
 
 // -- Procceses resending the matchfound if client / ack is not being found
-
 void MatchmakingServer::ProcessACKS()
 {
     for (auto it = _pendingSessions.begin(); it != _pendingSessions.end(); )
@@ -233,6 +240,7 @@ void MatchmakingServer::ProcessACKS()
                 {
                     if (p.retries >= MAX_RETRIES)
                     {
+                        // - If player doesn't send ACK confirmation in a specific period time, remove player form queue (RemoveSessionAndReQueue)
                         WriteConsole("[MATCHMAKING_SERVER] Giving up on player ", p.player.ip, ":", p.player.port);
                         giveUp = true;
                         break;
@@ -244,7 +252,7 @@ void MatchmakingServer::ProcessACKS()
                 }
             }
         }
-
+        
         if (giveUp)
         {
             RemoveSessionAndReQueue(*it);
@@ -264,11 +272,11 @@ void MatchmakingServer::ProcessACKS()
 }
 
 // -- If any player in your match disconnects / does not reply ACK it earease that player an requeue the other ones
-
 void MatchmakingServer::RemoveSessionAndReQueue(const MatchSession& session)
 {
     for (const auto& p : session.players)
     {
+        
         if (p.ackRecieved)
         {
             WriteConsole("[MATCHMAKING_SERVER] Returning ", p.player.ip, ":", p.player.port, " to queue.");

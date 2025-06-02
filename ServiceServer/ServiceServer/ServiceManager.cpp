@@ -20,6 +20,7 @@ ServiceManager::~ServiceManager()
 
 void ServiceManager::InitializeServices()
 {
+	// -- Create a new thread for each
 	_versionThread = std::thread(&VersionChecker::Run, _versionChecker, std::ref(_running));
 	_loginRegisterThread = std::thread(&LoginServer::Run, _loginServer, std::ref(_running));
 	_matchmakingThread = std::thread(&MatchmakingServer::Run, _matchMakingServer, std::ref(_running));

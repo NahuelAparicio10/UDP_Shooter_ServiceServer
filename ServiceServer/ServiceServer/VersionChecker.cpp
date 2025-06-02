@@ -7,6 +7,7 @@ VersionChecker::VersionChecker()
 
 VersionChecker::~VersionChecker() { _socket.unbind(); }
 
+// -- Bind to a specific port
 bool VersionChecker::InitializeSocket()
 {
 	if (_socket.bind(VersionCheckerServerPort) != sf::Socket::Status::Done)
@@ -20,6 +21,7 @@ bool VersionChecker::InitializeSocket()
 	return true;
 }
 
+// -- Function that gets and reads the local version file
 std::string VersionChecker::GetLocalVersion()
 {
 	std::ifstream file(VersionFile);
@@ -35,10 +37,12 @@ std::string VersionChecker::GetLocalVersion()
 	return version;
 }
 
+
 void VersionChecker::Run(std::atomic<bool>& running)
 {
 	if (!InitializeSocket()) return;
 
+	// -- Register the client datagram and checks if versions are the same, in case not send the new version and the new map
 	_dispatcher.RegisterHandler(PacketType::VERSION, [this](const RawPacketJob& job) {
 		std::string version = job.content;
 
@@ -54,10 +58,10 @@ void VersionChecker::Run(std::atomic<bool>& running)
 			SendDatagram(_socket, PacketHeader::NORMAL, PacketType::UPDATE, payload, job.sender.value(), job.port);
 			SendFile(job.sender.value(), job.port);
 		}	
-		});
+	});
 
 	_dispatcher.Start();
-
+	// -- While port is on, receiving client datagrams and queu them
 	while (running) 
 	{
 		char buffer[1024];
@@ -75,6 +79,7 @@ void VersionChecker::Run(std::atomic<bool>& running)
 	_dispatcher.Stop();
 }
 
+// -- Function that sends to client the new map version
 void VersionChecker::SendFile(sf::IpAddress address, unsigned short port)
 {
 	std::ifstream file(MapFile);
