@@ -193,11 +193,11 @@ void MatchmakingServer::ProcessMatchmaking(MatchQueue matchQueue)
         }
 
         // - Sending datagram with match info to GameServer
-        StartMatchData matchData;
-        matchData.matchID = matchID;
-        matchData.type = matchQueue.type;
-        matchData.players = players;
-        matchData.numOfPlayers = _playersPerMatch;
+        //StartMatchData matchData;
+        //matchData.matchID = matchID;
+        //matchData.type = matchQueue.type;
+        //matchData.players = players;
+        //matchData.numOfPlayers = _playersPerMatch;
 
         //std::string serialized = SerializeMatch(matchData);
         //SendDatagram(_socket, PacketHeader::URGENT, PacketType::MATCH_FOUND, serialized, GameServerIP.value(), GameServerPort);
