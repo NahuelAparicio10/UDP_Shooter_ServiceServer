@@ -5,8 +5,8 @@
 
 enum PacketHeader : uint8_t {
     NORMAL = 0b00000001,
-    URGENT = 0b00000010,
-    CRITICAL = 0b00000100
+    CRITIC = 0b00000010,
+    URGENT = 0b00000100
 };
 
 enum class PacketType : uint8_t {

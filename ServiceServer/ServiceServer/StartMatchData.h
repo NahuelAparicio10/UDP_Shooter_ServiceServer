@@ -15,30 +15,17 @@ struct ClientMatchInfo {
 struct StartMatchData {
     unsigned int matchID;
     MatchType type;
+    int numOfPlayers;
     std::vector<ClientMatchInfo> players;
 };
 
+// -- Saves the match data into string to be sent
 inline std::string SerializeMatch(const StartMatchData& data) {
     std::ostringstream ss;
-    ss << data.matchID << ":" << (data.type == MatchType::RANKED ? "RANKED" : "NORMAL");
+    ss << data.matchID << ":" << (data.type == MatchType::RANKED ? "RANKED" : "NORMAL") << ":" << data.numOfPlayers;
     for (const auto& p : data.players)
-        ss << ":" << p.ip.toString() << ":" << p.port;
+        ss << ":" << p.ip.toString() << ":" << p.port << ":" << p.playerID;
     return ss.str();
 }
 
-inline StartMatchData DeserializeMatch(const std::string& str) {
-    StartMatchData data;
-    std::istringstream ss(str);
-    std::string token;
-    std::getline(ss, token, ':');
-    data.matchID = std::stoi(token);
-    std::getline(ss, token, ':');
-    data.type = token == "RANKED" ? MatchType::RANKED : MatchType::NORMAL;
-    while (std::getline(ss, token, ':')) {
-        std::optional<sf::IpAddress> ip = sf::IpAddress::resolve(token);
-        std::getline(ss, token, ':');
-        unsigned short port = std::stoi(token);
-        data.players.push_back({ ip.value(), port});
-    }
-    return data;
-}
+
