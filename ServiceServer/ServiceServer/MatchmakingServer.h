@@ -45,8 +45,11 @@ private:
     std::string GenerateMatchID();
     bool InitializeSocket();
     void ProcessMatchmaking(MatchQueue matchQueue);
+    void ProcessMatchCreations();
     void ProcessMatchSessionsACKS();
     void RemoveSessionAndReQueue(const MatchSession& session);
+
+    void CreateMatchSession(const StartMatchData& data);
 
     sf::UdpSocket _socket;
 
@@ -56,6 +59,7 @@ private:
 
     std::vector<MatchSession> _pendingSessions;
     unsigned int _playersPerMatch = 2;
-
+    unsigned int _lastMatchID = 0;
+    std::vector<PendingMatchCreation> _pendingMatchCreations;
     PacketDispatcher _dispatcher;
 };

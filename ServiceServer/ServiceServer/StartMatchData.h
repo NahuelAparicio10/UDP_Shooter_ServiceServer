@@ -18,6 +18,15 @@ struct StartMatchData {
     int numOfPlayers;
     std::vector<ClientMatchInfo> players;
 };
+struct PendingMatchCreation {
+    StartMatchData matchData;
+    std::string serialized = "";
+    int attempts = 0;
+    sf::Clock timer;
+    bool waitingForAck = true;
+};
+
+
 
 // -- Saves the match data into string to be sent
 inline std::string SerializeMatch(const StartMatchData& data) {

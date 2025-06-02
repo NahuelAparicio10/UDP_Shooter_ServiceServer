@@ -24,10 +24,13 @@ enum class PacketType : uint8_t {
     CREATE_MATCH = 11,
     MATCH_UNIQUE = 12,
     MATCH_USED = 13,
-    ACK_MATCH_CREATED = 14,
-
+    PLAYER_MOVEMENT = 14,
+    RECONCILE = 15,
+    ACK_JOINED = 16,
+    ACK_MATCH_CREATED = 17,
+    CREATE_PLAYER = 18,
+    ACK_PLAYERS_CREATED = 19
 };
-
 
 struct RawPacketJob {
     uint8_t headerMask;

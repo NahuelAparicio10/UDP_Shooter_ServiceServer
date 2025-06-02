@@ -1,5 +1,5 @@
 #include "PacketDispatcher.h"
-
+#include "ConsoleUtils.h"
 PacketDispatcher::PacketDispatcher() : _running(false)
 {
 }
@@ -63,7 +63,7 @@ void PacketDispatcher::DispatchLoop()
                 continue;
             }
         }
-
+        WriteConsole("[DISPATCH] Ejecutando handler de tipo ", static_cast<int>(job.type));
         auto it = _handlers.find(job.type);
         if (it != _handlers.end()) {
             // - Triggers all sucribers from functional event
