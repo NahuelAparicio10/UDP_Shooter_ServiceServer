@@ -2,7 +2,7 @@
 
 LoginServer::LoginServer()
 {
-    StartListening(50000);
+    StartListening(50500);
 }
 
 LoginServer::~LoginServer()
@@ -18,6 +18,7 @@ void LoginServer::StartListening(unsigned short port)
         WriteConsole("[LR_SERVER] Failed to bind port");
     }
 
+    WriteConsole("[LR_SERVER] Start listening on por ", port);
     _selector.add(_listener);
 }
 

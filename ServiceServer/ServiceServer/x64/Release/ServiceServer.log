@@ -1,13 +1,12 @@
-﻿  MatchmakingServer.cpp
+﻿  LoginServer.cpp
 C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\Dependencies\include\SFML\System\Exception.hpp(42,1): warning C4275: non dll-interface class 'std::runtime_error' used as base for dll-interface class 'sf::Exception'
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\stdexcept(101): message : see declaration of 'std::runtime_error'
 C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\Dependencies\include\SFML\System\Exception.hpp(41): message : see declaration of 'sf::Exception'
-C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\ServiceServer\NetworkDefs.h(56,16): warning C4834: discarding return value of function with 'nodiscard' attribute
-C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\ServiceServer\MatchmakingServer.cpp(57,14): warning C4101: 'response': unreferenced local variable
-C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\ServiceServer\MatchmakingServer.cpp(234,33): warning C4834: discarding return value of function with 'nodiscard' attribute
+C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\ServiceServer\LoginServer.cpp(86,34): warning C4834: discarding return value of function with 'nodiscard' attribute
+C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\ServiceServer\LoginServer.cpp(93,34): warning C4834: discarding return value of function with 'nodiscard' attribute
      Creating library C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\x64\Release\ServiceServer.lib and object C:\Users\nahue\Desktop\CloneRepositoryGitHub\AA4_Shooter_UDP\AA4_ServiceServer\ServiceServer\x64\Release\ServiceServer.exp
   Generating code
-  0 of 1386 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+  0 of 1387 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
