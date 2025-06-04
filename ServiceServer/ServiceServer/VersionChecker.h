@@ -8,7 +8,8 @@
 #include "PacketDispatcher.h"
 #include <sstream>
 #include "Constants.h"
-// -- Manages the versión client-map
+
+// -- Manages the version control and sends map to the clients if they are not updated
 
 class VersionChecker
 {
@@ -24,7 +25,6 @@ private:
 
 	bool InitializeSocket();
 	std::string GetLocalVersion();
-	//void HandleClient(const std::string& message, const sf::IpAddress& sender, unsigned short senderPort);
 	void SendFile(sf::IpAddress address, unsigned short port);
 	PacketDispatcher _dispatcher;
 };

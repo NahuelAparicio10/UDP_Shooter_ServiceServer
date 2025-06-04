@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <string>
 
+#pragma region Packet Configs
 enum PacketHeader : uint8_t {
     NORMAL = 0b00000001,
     CRITIC = 0b00000010,
@@ -39,8 +40,11 @@ struct RawPacketJob {
     std::optional<sf::IpAddress> sender;
     unsigned short port;
 };
+#pragma endregion
 
-// Función para crear un datagrama listo para enviar
+#pragma region Datagramas
+
+// -- This function creates a datagrama ready to be sent
 inline std::size_t CreateRawDatagram(uint8_t headerMask, PacketType type, const std::string& content, char* outBuffer)
 {
     outBuffer[0] = headerMask;
@@ -49,6 +53,8 @@ inline std::size_t CreateRawDatagram(uint8_t headerMask, PacketType type, const 
     return 2 + content.size();
 }
 
+// -- Given a UDP datagrama structure sends it to the ip and port given
+
 inline void SendDatagram(sf::UdpSocket& socket, PacketHeader header, PacketType type, const std::string& content, const sf::IpAddress& ip, unsigned short port)
 {
     char buffer[1024];
@@ -56,7 +62,7 @@ inline void SendDatagram(sf::UdpSocket& socket, PacketHeader header, PacketType 
     socket.send(buffer, size, ip, port);
 }
 
-// Función para parsear datagramas binarios
+// -- Functin that parses binary datagramas
 inline bool ParseRawDatagram(const char* data, std::size_t size, RawPacketJob& out, const sf::IpAddress& ip, unsigned short port)
 {
     if (size < 2) return false;
@@ -73,3 +79,4 @@ inline bool ParseRawDatagram(const char* data, std::size_t size, RawPacketJob& o
     return true;
 }
 
+#pragma endregion

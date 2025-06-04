@@ -2,6 +2,7 @@
 #include <SFML/Network.hpp>
 #include <string>
 #include <sstream>
+
 // -- Save Client Data for Login & Register connections and communications
 
 class ClientLR

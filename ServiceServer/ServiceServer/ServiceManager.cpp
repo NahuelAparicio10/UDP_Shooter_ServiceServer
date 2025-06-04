@@ -18,13 +18,16 @@ ServiceManager::~ServiceManager()
 	delete _matchMakingServer;
 }
 
+// -- Creates one thread for each service of the server (Version Checker, Login & Register and Match Making)
+
 void ServiceManager::InitializeServices()
 {
-	// -- Create a new thread for each
 	_versionThread = std::thread(&VersionChecker::Run, _versionChecker, std::ref(_running));
 	_loginRegisterThread = std::thread(&LoginServer::Run, _loginServer, std::ref(_running));
 	_matchmakingThread = std::thread(&MatchmakingServer::Run, _matchMakingServer, std::ref(_running));
 }
+
+//-- Stops all the services
 
 void ServiceManager::StopServices()
 {

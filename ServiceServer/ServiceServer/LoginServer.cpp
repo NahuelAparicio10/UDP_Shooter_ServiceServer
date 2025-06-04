@@ -7,6 +7,7 @@ LoginServer::LoginServer()
 
 LoginServer::~LoginServer()
 {
+    _clients.clear();
 }
 
 void LoginServer::StartListening(unsigned short port)

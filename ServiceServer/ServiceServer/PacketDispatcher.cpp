@@ -9,19 +9,26 @@ PacketDispatcher::~PacketDispatcher()
 	Stop();
 }
 
+// -- Enqueue a packet to the queue depending on his header
+
 void PacketDispatcher::EnqueuePacket(const RawPacketJob& job)
 {
     std::lock_guard<std::mutex> lock(_mutex);
-    if (job.headerMask & PacketHeader::URGENT) {
+    if (job.headerMask & PacketHeader::URGENT) 
+    {
         _queueUrgent.push(job);
     }
-    else if (job.headerMask & PacketHeader::CRITIC) {
+    else if (job.headerMask & PacketHeader::CRITIC) 
+    {
         _queueCritical.push(job);
     }
-    else {
+    else 
+    {
         _queueNormal.push(job);
     }
 }
+
+// -- Registers a action handler in case it triggers
 
 void PacketDispatcher::RegisterHandler(PacketType type, std::function<void(const RawPacketJob&)> handler) {	_handlers[type] = handler; }
 
@@ -36,6 +43,8 @@ void PacketDispatcher::Stop()
 	_running = false;
 	if (_dispatchThread.joinable()) _dispatchThread.join();
 }
+
+//-- Triggers the register handler depending on the package in queue by priority (urgent, critic, normal)
 
 void PacketDispatcher::DispatchLoop()
 {
@@ -63,9 +72,11 @@ void PacketDispatcher::DispatchLoop()
                 continue;
             }
         }
-        WriteConsole("[DISPATCH] Ejecutando handler de tipo ", static_cast<int>(job.type));
+
         auto it = _handlers.find(job.type);
-        if (it != _handlers.end()) {
+        
+        if (it != _handlers.end()) 
+        {
             // - Triggers all sucribers from functional event
             it->second(job);
         }
