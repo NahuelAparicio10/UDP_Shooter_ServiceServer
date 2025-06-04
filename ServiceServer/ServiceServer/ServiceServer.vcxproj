@@ -135,7 +135,33 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bcrypt.cpp" />
+    <ClCompile Include="blowfish.cpp" />
+    <ClCompile Include="ClientLR.cpp" />
+    <ClCompile Include="DatabaseManager.cpp" />
+    <ClCompile Include="LoginServer.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="MatchmakingServer.cpp" />
+    <ClCompile Include="PacketDispatcher.cpp" />
+    <ClCompile Include="ServiceManager.cpp" />
+    <ClCompile Include="VersionChecker.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="bcrypt.h" />
+    <ClInclude Include="ClientLR.h" />
+    <ClInclude Include="ConsoleUtils.h" />
+    <ClInclude Include="Constants.h" />
+    <ClInclude Include="DatabaseManager.h" />
+    <ClInclude Include="LoginServer.h" />
+    <ClInclude Include="MatchmakingServer.h" />
+    <ClInclude Include="NetworkDefs.h" />
+    <ClInclude Include="node_blf.h" />
+    <ClInclude Include="openbsd.h" />
+    <ClInclude Include="Packet.hpp" />
+    <ClInclude Include="PacketDispatcher.h" />
+    <ClInclude Include="ServiceManager.h" />
+    <ClInclude Include="StartMatchData.h" />
+    <ClInclude Include="VersionChecker.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,22 +1,16 @@
-#include <SFML/Graphics.hpp>
+#include "ServiceManager.h"
+#include "ConsoleUtils.h"
 
 int main()
 {
-	sf::RenderWindow window(sf::VideoMode({ 200,200 }), "SFML works!");
-	sf::CircleShape shape(100.f);
-	shape.setFillColor(sf::Color::Green);
+	ServiceManager serviceManager;
 
-	while (window.isOpen())
-	{
-		while (const std::optional event = window.pollEvent())
-		{
-			if (event->is<sf::Event::Closed>())
-			{
-				window.close();
-			}
-		}
-		window.clear();
-		window.draw(shape);
-		window.display();
-	}
+	serviceManager.InitializeServices();
+
+	WriteConsole("[SERVICE SERVER] All services running. Close Window to Exit.");
+	std::cin.get();
+
+	serviceManager.StopServices();
+	WriteConsole("[SERVICE SERVER] Services stopped. Exiting.");
+	return 0;
 }
