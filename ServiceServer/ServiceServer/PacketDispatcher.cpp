@@ -1,5 +1,5 @@
 #include "PacketDispatcher.h"
-
+#include "ConsoleUtils.h"
 PacketDispatcher::PacketDispatcher() : _running(false)
 {
 }
@@ -9,19 +9,26 @@ PacketDispatcher::~PacketDispatcher()
 	Stop();
 }
 
+// -- Enqueue a packet to the queue depending on his header
+
 void PacketDispatcher::EnqueuePacket(const RawPacketJob& job)
 {
     std::lock_guard<std::mutex> lock(_mutex);
-    if (job.headerMask & PacketHeader::CRITICAL) {
-        _queueCritical.push(job);
-    }
-    else if (job.headerMask & PacketHeader::URGENT) {
+    if (job.headerMask & PacketHeader::URGENT) 
+    {
         _queueUrgent.push(job);
     }
-    else {
+    else if (job.headerMask & PacketHeader::CRITIC) 
+    {
+        _queueCritical.push(job);
+    }
+    else 
+    {
         _queueNormal.push(job);
     }
 }
+
+// -- Registers a action handler in case it triggers
 
 void PacketDispatcher::RegisterHandler(PacketType type, std::function<void(const RawPacketJob&)> handler) {	_handlers[type] = handler; }
 
@@ -37,6 +44,8 @@ void PacketDispatcher::Stop()
 	if (_dispatchThread.joinable()) _dispatchThread.join();
 }
 
+//-- Triggers the register handler depending on the package in queue by priority (urgent, critic, normal)
+
 void PacketDispatcher::DispatchLoop()
 {
     while (_running)
@@ -44,15 +53,15 @@ void PacketDispatcher::DispatchLoop()
         RawPacketJob job;
         {
             std::lock_guard<std::mutex> lock(_mutex);
-            if (!_queueCritical.empty()) 
-            {
-                job = _queueCritical.front();
-                _queueCritical.pop();
-            }
-            else if (!_queueUrgent.empty()) 
+            if (!_queueUrgent.empty()) 
             {
                 job = _queueUrgent.front();
                 _queueUrgent.pop();
+            }
+            else if (!_queueCritical.empty()) 
+            {
+                job = _queueCritical.front();
+                _queueCritical.pop();
             }
             else if (!_queueNormal.empty()) 
             {
@@ -65,7 +74,10 @@ void PacketDispatcher::DispatchLoop()
         }
 
         auto it = _handlers.find(job.type);
-        if (it != _handlers.end()) {
+        
+        if (it != _handlers.end()) 
+        {
+            // - Triggers all sucribers from functional event
             it->second(job);
         }
     }

@@ -45,7 +45,6 @@ void DatabaseManager::ConnectDatabase()
 
 // -- Registers a new user, hashes the password and inserts into the database
 
-
 bool DatabaseManager::RegisterUser(const std::string& nickname, const std::string& password)
 {
 	std::lock_guard<std::mutex> lock(_loginMutex);

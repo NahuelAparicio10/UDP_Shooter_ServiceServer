@@ -9,28 +9,9 @@
 #include "PacketDispatcher.h"
 #include "Constants.h"
 #include "StartMatchData.h"
+
 constexpr int MAX_RETRIES = 5;
 constexpr float RESEND_INTERVAL = 1.0f;
-
-
-
-struct PendingMatch {
-    ClientMatchInfo player;
-    std::string matchMessage;
-    int retries = 0;
-    sf::Clock timer;
-    bool ackRecieved = false;
-    MatchType matchType;
-};
-
-struct MatchSession {
-    std::vector<PendingMatch> players;
-};
-
-struct MatchQueue {
-    MatchType type;
-    std::queue<ClientMatchInfo>* queue;
-};
 
 class MatchmakingServer {
 public:
@@ -38,15 +19,19 @@ public:
     ~MatchmakingServer();
 
     void Run(std::atomic<bool>& running);
-    void SetPlayersPerMatch(unsigned int count);
+
 
 
 private:
+    void SubcribeActionHandlers();
     std::string GenerateMatchID();
     bool InitializeSocket();
     void ProcessMatchmaking(MatchQueue matchQueue);
-    void ProcessACKS();
+    void ProcessMatchCreations();
+    void ProcessMatchSessionsACKS();
     void RemoveSessionAndReQueue(const MatchSession& session);
+
+    void CreateMatchSession(const StartMatchData& data);
 
     sf::UdpSocket _socket;
 
@@ -56,6 +41,7 @@ private:
 
     std::vector<MatchSession> _pendingSessions;
     unsigned int _playersPerMatch = 2;
-
+    unsigned int _lastMatchID = 0;
+    std::vector<PendingMatchCreation> _pendingMatchCreations;
     PacketDispatcher _dispatcher;
 };
