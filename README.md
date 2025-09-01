@@ -1,4 +1,4 @@
-# Service Server [UDP SHOOTER]
+# [UDP SHOOTER] Service Server 
 
 ![C++](https://img.shields.io/badge/C++-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)
 ![UDP](https://img.shields.io/badge/UDP-0078D6?style=for-the-badge&logo=network&logoColor=white)
@@ -35,3 +35,9 @@ Nahuel Aparicio Del Blanco
 - GitHub: https://github.com/NahuelAparicio10
 - Email: nahuel.ap.code@gmail.com
 - LinkedIn: https://www.linkedin.com/in/nahuel-aparicio-del-blanco
+
+Lluc Ferrando
+
+- GitHub: 
+- Email: 
+- LinkedIn: 
