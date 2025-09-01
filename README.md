@@ -10,14 +10,9 @@
 
 Manage core services for the game, including authentication, patch/version control, matchmaking, and ranking.
 
-**How I resolved it** 
+**How we resolved it** 
 
-I built the service server in C++ using Visual Studio. Communication is handled via TCP to ensure reliable message delivery. Each service (storage, patching, matchmaking) is managed by its own thread. The ranking system updates dynamically after competitive matches.
-
-**What I learned** 
-
-I learned how to design and implement service-oriented servers with multithreading, integrate matchmaking with ranking logic, and create modular systems that interact seamlessly with both the client and the gameplay server.
-
+We built the service server in C++ using Visual Studio. Communication is handled via TCP to ensure reliable message delivery. Each service (storage, patching, matchmaking) is managed by its own thread. The ranking system updates dynamically after competitive matches.
 
 [![Shooter Client](https://img.shields.io/badge/Shooter_Client-Repository-blue?logo=github)](https://github.com/NahuelAparicio10/UDP_Shooter_Client)
 
@@ -36,3 +31,7 @@ Nahuel Aparicio Del Blanco
 - Email: nahuel.ap.code@gmail.com
 - LinkedIn: https://www.linkedin.com/in/nahuel-aparicio-del-blanco
 
+Lluc Ferrando Jorda
+- GitHub: 
+- Email: 
+- LinkedIn: 
