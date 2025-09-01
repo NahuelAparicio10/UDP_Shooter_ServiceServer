@@ -36,8 +36,3 @@ Nahuel Aparicio Del Blanco
 - Email: nahuel.ap.code@gmail.com
 - LinkedIn: https://www.linkedin.com/in/nahuel-aparicio-del-blanco
 
-Lluc Ferrando
-
-- GitHub: 
-- Email: 
-- LinkedIn: 
